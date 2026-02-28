@@ -1,26 +1,48 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.75rem;
+  /* Soft Mint Background */
+  --background: oklch(0.99 0.01 160); 
+  --foreground: oklch(0.25 0.04 160);
+  
+  /* White Cards with subtle borders */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.25 0.04 160);
+  
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.25 0.04 160);
+
+  /* The Signature Green from your "Dashboard" button */
+  --primary: oklch(0.64 0.15 165);
+  --primary-foreground: oklch(0.99 0.01 160);
+
+  /* Light Green for secondary actions/badges */
+  --secondary: oklch(0.96 0.03 160);
+  --secondary-foreground: oklch(0.35 0.12 165);
+
+  --muted: oklch(0.96 0.03 160);
+  --muted-foreground: oklch(0.55 0.05 160);
+
+  --accent: oklch(0.92 0.06 160);
+  --accent-foreground: oklch(0.25 0.04 160);
+
+  --destructive: oklch(0.60 0.18 25);
+  --border: oklch(0.92 0.02 160);
+  --input: oklch(0.92 0.02 160);
+  --ring: oklch(0.64 0.15 165);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.dark {
+  --background: oklch(0.20 0.03 165);
+  --foreground: oklch(0.95 0.02 160);
+  --card: oklch(0.24 0.04 165);
+  --card-foreground: oklch(0.95 0.02 160);
+  --primary: oklch(0.75 0.12 165);
+  --primary-foreground: oklch(0.20 0.03 165);
+  --border: oklch(0.35 0.03 165);
 }
