@@ -13,6 +13,7 @@
     "@prisma/adapter-neon": "^7.4.1",
     "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "^7.4.1",
+    "@radix-ui/react-dialog": "^1.1.15",
     "@tanstack/react-query": "^5.90.21",
     "@types/next-auth": "^3.13.0",
     "bcryptjs": "^3.0.3",
@@ -27,6 +28,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.2",
+    "react-toastify": "^11.0.5",
     "tailwind-merge": "^3.5.0",
     "ws": "^8.19.0",
     "zod": "^4.3.6"

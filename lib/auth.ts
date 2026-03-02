@@ -74,6 +74,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.sub = user.id;
         token.proficiencyLevel = user.proficiencyLevel;
       }
       return token;

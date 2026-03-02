@@ -4,7 +4,6 @@ import Link from "next/link";
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: BookOpen, href: '/' },
   { id: 'categories', label: 'Categories', icon: BookOpen, href: '/categories' },
-  { id: 'vocabulary', label: 'Vocabulary', icon: BookOpen, href: '/vocabulary' },
   { id: 'review', label: 'Review', icon: BookOpen, href: '/review' },
 ];
 

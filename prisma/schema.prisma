@@ -21,13 +21,43 @@ enum ProficiencyLevel {
 }
 
 model User {
-  id               String            @id @default(cuid())
+  id               String           @id @default(cuid())
   name             String?
   email            String           @unique
   password         String
   proficiencyLevel ProficiencyLevel @default(BEGINNER) @map(name: "proficiency_level")
-  createdAt        DateTime          @default(now()) @map(name: "created_at")
-  updatedAt        DateTime          @updatedAt @map(name: "updated_at")
+  createdAt        DateTime         @default(now()) @map(name: "created_at")
+  updatedAt        DateTime         @updatedAt @map(name: "updated_at")
+  categories       Category[]
+  vocabularies     Vocabulary[]
 
   @@map(name: "users")
+}
+
+model Category {
+  id           String       @id @default(cuid())
+  name         String
+  description  String?
+  createdAt    DateTime     @default(now()) @map(name: "created_at")
+  updatedAt    DateTime     @updatedAt @map(name: "updated_at")
+  userId       String       @map("userId")
+  user         User         @relation(fields: [userId], references: [id])
+  vocabularies Vocabulary[]
+
+  @@map(name: "categories")
+}
+
+model Vocabulary {
+  id           String   @id @default(cuid())
+  word         String
+  partOfSpeech String
+  definition   String
+  createdAt    DateTime @default(now()) @map(name: "created_at")
+  updatedAt    DateTime @updatedAt @map(name: "updated_at")
+  categoryId   String   @map("categoryId")
+  category     Category @relation(fields: [categoryId], references: [id])
+  userId       String   @map("userId")
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@map(name: "vocabularies")
 }
