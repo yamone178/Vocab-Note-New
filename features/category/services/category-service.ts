@@ -42,12 +42,14 @@ export const getCategories = async ({
   page,
   limit,
 }: {
-  page: number;
-  limit: number;
-}) => {
-  const response = await fetch(
-    `/api/categories?page=${page}&limit=${limit}`
-  );
+  page?: number;
+  limit?: number;
+} = {}) => {
+  const url = new URL("/api/categories", window.location.origin);
+  if (page) url.searchParams.append("page", page.toString());
+  if (limit) url.searchParams.append("limit", limit.toString());
+
+  const response = await fetch(url.toString());
 
   if (!response.ok) {
     throw new Error("Failed to fetch categories");

@@ -73,7 +73,16 @@ export async function POST(
 
   try {
     const body = await req.json();
-    const { word, partOfSpeech, definition } = body;
+    console.log("POST /api/categories/[id]/vocabularies body:", body);
+    const {
+      word,
+      partOfSpeech,
+      definition,
+      example,
+      synonyms,
+      antonyms,
+      difficulty,
+    } = body;
 
     // Verify user exists in database
     const userExists = await db.user.findUnique({
@@ -89,10 +98,24 @@ export async function POST(
 
     const vocabulary = await db.vocabulary.create({
       data: {
-        word,
-        partOfSpeech,
-        definition,
-        categoryId: id,
+        word: String(word),
+        partOfSpeech: String(partOfSpeech),
+        definition: String(definition),
+        example: example ? String(example) : null,
+        difficulty: difficulty || "BEGINNER",
+        synonyms:
+          Array.isArray(synonyms)
+            ? synonyms
+            : typeof synonyms === "string" && synonyms.trim() !== ""
+              ? synonyms.split(",").map((s: string) => s.trim())
+              : [],
+        antonyms:
+          Array.isArray(antonyms)
+            ? antonyms
+            : typeof antonyms === "string" && antonyms.trim() !== ""
+              ? antonyms.split(",").map((a: string) => a.trim())
+              : [],
+        categoryId: String(id),
         userId: session.user.id,
       },
     });

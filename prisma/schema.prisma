@@ -52,6 +52,10 @@ model Vocabulary {
   word         String
   partOfSpeech String
   definition   String
+  example      String?
+  synonyms     String[]
+  antonyms     String[]
+  difficulty   String   @default("BEGINNER")
   createdAt    DateTime @default(now()) @map(name: "created_at")
   updatedAt    DateTime @updatedAt @map(name: "updated_at")
   categoryId   String   @map("categoryId")

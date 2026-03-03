@@ -10,10 +10,9 @@ interface CreateVocabularyVariables extends VocabularySchema {
 export const useCreateVocabulary = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, Error, CreateVocabularyVariables>({
-    mutationFn: (variables) => {
-      const { categoryId, ...data } = variables;
-      return createVocabulary({ categoryId, data });
+  return useMutation<unknown, Error, VocabularySchema>({
+    mutationFn: (data) => {
+      return createVocabulary(data);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
