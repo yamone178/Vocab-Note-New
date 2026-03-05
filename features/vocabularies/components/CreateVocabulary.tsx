@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface CreateVocabularyProps {
-  categoryId: string;
+  categoryId?: string;
 }
 
 const CreateVocabulary = ({ categoryId }: CreateVocabularyProps) => {

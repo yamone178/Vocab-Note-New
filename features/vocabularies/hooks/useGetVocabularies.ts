@@ -7,7 +7,7 @@ export const useGetVocabularies = ({
   limit,
   search,
 }: {
-  categoryId: string;
+  categoryId?: string;
   page: number;
   limit: number;
   search: string;
@@ -15,6 +15,5 @@ export const useGetVocabularies = ({
   return useQuery({
     queryKey: ["vocabularies", { categoryId, page, limit, search }],
     queryFn: () => getVocabularies({ categoryId, page, limit, search }),
-    enabled: !!categoryId,
   });
 };

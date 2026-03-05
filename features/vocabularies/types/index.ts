@@ -10,4 +10,5 @@ export interface Vocabulary {
   createdAt: string;
   updatedAt: string;
   categoryId: string;
+  knowIt: boolean;
 }

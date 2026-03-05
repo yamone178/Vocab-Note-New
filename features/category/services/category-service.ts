@@ -22,17 +22,45 @@ export const getVocabularies = async ({
   limit,
   search,
 }: {
-  categoryId: string;
+  categoryId?: string;
   page: number;
   limit: number;
   search: string;
 }) => {
-  const response = await fetch(
-    `/api/categories/${categoryId}/vocabularies?page=${page}&limit=${limit}&search=${search}`
-  );
+  const url = categoryId
+    ? `/api/categories/${categoryId}/vocabularies?page=${page}&limit=${limit}&search=${search}`
+    : `/api/vocabularies?page=${page}&limit=${limit}&search=${search}`;
+
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error("Failed to fetch vocabularies");
+  }
+
+  return response.json();
+};
+
+export const getRandomVocabularies = async (count: number = 7) => {
+  const response = await fetch(`/api/vocabularies/random?count=${count}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch random vocabularies");
+  }
+
+  return response.json();
+};
+
+export const updateVocabularyStatus = async (id: string, knowIt: boolean) => {
+  const response = await fetch(`/api/vocabularies/${id}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ knowIt }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update vocabulary status");
   }
 
   return response.json();

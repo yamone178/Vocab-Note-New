@@ -18,3 +18,15 @@ export const createVocabulary = async (data: VocabularySchema) => {
 
   return response.json();
 };
+
+export const deleteVocabulary = async (id: string) => {
+  const response = await fetch(`/api/vocabularies/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete vocabulary");
+  }
+
+  return response.json();
+};
