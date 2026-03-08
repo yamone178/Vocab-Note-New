@@ -21,17 +21,30 @@ export const getVocabularies = async ({
   page,
   limit,
   search,
+  difficulty,
+  knowIt,
 }: {
   categoryId?: string;
   page: number;
   limit: number;
   search: string;
+  difficulty?: string;
+  knowIt?: boolean;
 }) => {
-  const url = categoryId
-    ? `/api/categories/${categoryId}/vocabularies?page=${page}&limit=${limit}&search=${search}`
-    : `/api/vocabularies?page=${page}&limit=${limit}&search=${search}`;
+  const url = new URL(
+    categoryId
+      ? `/api/categories/${categoryId}/vocabularies`
+      : `/api/vocabularies`,
+    window.location.origin,
+  );
 
-  const response = await fetch(url);
+  url.searchParams.append("page", page.toString());
+  url.searchParams.append("limit", limit.toString());
+  if (search) url.searchParams.append("search", search);
+  if (difficulty) url.searchParams.append("difficulty", difficulty);
+  if (knowIt !== undefined) url.searchParams.append("knowIt", knowIt.toString());
+
+  const response = await fetch(url.toString());
 
   if (!response.ok) {
     throw new Error("Failed to fetch vocabularies");

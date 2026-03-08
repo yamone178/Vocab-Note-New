@@ -7,6 +7,13 @@ import DashboardLayout from "@/common/components/DashboardLayout";
 import { BookOpen, Search, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Vocabulary } from "@/features/vocabularies/types";
@@ -15,6 +22,8 @@ import VocabularyDetailModal from "@/features/vocabularies/components/Vocabulary
 const VocabulariesPage = () => {
   const [activeTab, setActiveTab] = useState('vocabularies');
   const [search, setSearch] = useState("");
+  const [difficulty, setDifficulty] = useState<string>("all");
+  const [status, setStatus] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [selectedVocab, setSelectedVocab] = useState<(Vocabulary & { category?: { name: string } }) | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +33,8 @@ const VocabulariesPage = () => {
     page,
     limit,
     search,
+    difficulty: difficulty === "all" ? undefined : difficulty,
+    knowIt: status === "all" ? undefined : status === "know",
   });
 
   const handleLogout = async () => {
@@ -60,9 +71,48 @@ const VocabulariesPage = () => {
               <Input
                 placeholder="Search words..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 className="pl-10 border-emerald-100 focus-visible:ring-emerald-500"
               />
+            </div>
+            <div className="hidden md:flex items-center gap-2">
+              <Select
+                value={difficulty}
+                onValueChange={(value) => {
+                  setDifficulty(value);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[140px] border-emerald-100 focus:ring-emerald-500">
+                  <SelectValue placeholder="Difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Levels</SelectItem>
+                  <SelectItem value="BEGINNER">Beginner</SelectItem>
+                  <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
+                  <SelectItem value="ADVANCED">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={status}
+                onValueChange={(value) => {
+                  setStatus(value);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[140px] border-emerald-100 focus:ring-emerald-500">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="learning">Still Learning</SelectItem>
+                  <SelectItem value="know">I Know This</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <Button 
               className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
@@ -74,6 +124,44 @@ const VocabulariesPage = () => {
               </Link>
             </Button>
           </div>
+        </div>
+
+        {/* Mobile Filters */}
+        <div className="flex md:hidden items-center gap-2 overflow-x-auto pb-2">
+          <Select
+            value={difficulty}
+            onValueChange={(value) => {
+              setDifficulty(value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="min-w-[130px] border-emerald-100 focus:ring-emerald-500">
+              <SelectValue placeholder="Difficulty" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Levels</SelectItem>
+              <SelectItem value="BEGINNER">Beginner</SelectItem>
+              <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
+              <SelectItem value="ADVANCED">Advanced</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={status}
+            onValueChange={(value) => {
+              setStatus(value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="min-w-[130px] border-emerald-100 focus:ring-emerald-500">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="learning">Still Learning</SelectItem>
+              <SelectItem value="know">I Know This</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {isLoading ? (

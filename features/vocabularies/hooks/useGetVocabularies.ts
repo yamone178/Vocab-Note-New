@@ -6,14 +6,18 @@ export const useGetVocabularies = ({
   page,
   limit,
   search,
+  difficulty,
+  knowIt,
 }: {
   categoryId?: string;
   page: number;
   limit: number;
   search: string;
+  difficulty?: string;
+  knowIt?: boolean;
 }) => {
   return useQuery({
-    queryKey: ["vocabularies", { categoryId, page, limit, search }],
-    queryFn: () => getVocabularies({ categoryId, page, limit, search }),
+    queryKey: ["vocabularies", { categoryId, page, limit, search, difficulty, knowIt }],
+    queryFn: () => getVocabularies({ categoryId, page, limit, search, difficulty, knowIt }),
   });
 };

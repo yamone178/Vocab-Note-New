@@ -12,16 +12,28 @@ import CreateVocabulary from "@/features/vocabularies/components/CreateVocabular
 import { Plus, BookOpen, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useGetVocabularies } from "@/features/vocabularies/hooks/useGetVocabularies";
 import { Vocabulary } from "@/features/vocabularies/types";
 
 function VocabularyContent({ categoryId }: { categoryId: string }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [difficulty, setDifficulty] = useState<string>("all");
+  const [status, setStatus] = useState<string>("all");
+
   const { data, isLoading } = useGetVocabularies({
     categoryId,
     page: 1,
     limit: 100, // Fetch all for now
     search: searchTerm,
+    difficulty: difficulty === "all" ? undefined : difficulty,
+    knowIt: status === "all" ? undefined : status === "know",
   });
 
   const vocabularies = data?.data || [];
@@ -46,18 +58,50 @@ function VocabularyContent({ categoryId }: { categoryId: string }) {
         <CreateVocabulary categoryId={categoryId} />
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search
-          size={16}
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-        />
-        <Input
-          placeholder="Search vocabulary..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 border-emerald-200 focus:border-emerald-400"
-        />
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          />
+          <Input
+            placeholder="Search vocabulary..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 border-emerald-200 focus:border-emerald-400"
+          />
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+          <Select
+            value={difficulty}
+            onValueChange={(value) => setDifficulty(value)}
+          >
+            <SelectTrigger className="w-[140px] border-emerald-100 focus:ring-emerald-500">
+              <SelectValue placeholder="Difficulty" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Levels</SelectItem>
+              <SelectItem value="BEGINNER">Beginner</SelectItem>
+              <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
+              <SelectItem value="ADVANCED">Advanced</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={status}
+            onValueChange={(value) => setStatus(value)}
+          >
+            <SelectTrigger className="w-[140px] border-emerald-100 focus:ring-emerald-500">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="learning">Still Learning</SelectItem>
+              <SelectItem value="know">I Know This</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
         {/* Vocabulary List */}

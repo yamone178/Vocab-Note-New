@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthUserId } from "@/app/api/_utils/auth";
 import { prisma as db } from "@/common/lib/prisma";
 
 export async function DELETE(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const userId = await getAuthUserId(req);
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -27,7 +26,7 @@ export async function DELETE(
       return NextResponse.json({ message: "Vocabulary not found" }, { status: 404 });
     }
 
-    if (vocabulary.userId !== session.user.id) {
+    if (vocabulary.userId !== userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 

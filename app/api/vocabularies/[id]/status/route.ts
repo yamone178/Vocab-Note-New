@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthUserId } from "@/app/api/_utils/auth";
 import { prisma as db } from "@/common/lib/prisma";
 
 export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const userId = await getAuthUserId(req);
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -21,7 +20,7 @@ export async function PATCH(
     const vocabulary = await db.vocabulary.update({
       where: {
         id,
-        userId: session.user.id, // Ensure user owns the vocabulary
+        userId, // Ensure user owns the vocabulary
       },
       data: {
         knowIt,

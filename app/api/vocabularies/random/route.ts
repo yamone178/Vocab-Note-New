@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthUserId } from "@/app/api/_utils/auth";
 import { prisma as db } from "@/common/lib/prisma";
 
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
+  const userId = await getAuthUserId(req);
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -17,7 +16,7 @@ export async function GET(req: Request) {
     // Get random vocabularies using raw SQL for better performance on large datasets
     // or use a more Prisma-friendly way for smaller datasets
     const totalVocab = await db.vocabulary.count({
-      where: { userId: session.user.id }
+      where: { userId }
     });
 
     if (totalVocab === 0) {
@@ -28,7 +27,7 @@ export async function GET(req: Request) {
     // Get all IDs, shuffle them, take N, then fetch those records.
     // For simplicity and assuming modest scale:
     const allVocab = await db.vocabulary.findMany({
-      where: { userId: session.user.id },
+      where: { userId },
       select: { id: true }
     });
 

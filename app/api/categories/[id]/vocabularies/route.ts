@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthUserId } from "@/app/api/_utils/auth";
 import { prisma as db } from "@/common/lib/prisma";
 
 export async function GET(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const userId = await getAuthUserId(req);
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -17,15 +16,21 @@ export async function GET(
 
   const { searchParams } = new URL(req.url);
   const search = searchParams.get("search") || "";
+  const difficulty = searchParams.get("difficulty");
+  const knowIt = searchParams.get("knowIt");
 
   try {
     const vocabularies = await db.vocabulary.findMany({
       where: {
         categoryId: id,
-        word: {
-          contains: search,
-          mode: "insensitive",
-        },
+        ...(search ? {
+          OR: [
+            { word: { contains: search, mode: "insensitive" } },
+            { definition: { contains: search, mode: "insensitive" } },
+          ],
+        } : {}),
+        ...(difficulty ? { difficulty } : {}),
+        ...(knowIt !== null && knowIt !== undefined ? { knowIt: knowIt === "true" } : {}),
       },
       orderBy: {
         createdAt: "desc",
@@ -63,9 +68,9 @@ export async function POST(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const userId = await getAuthUserId(req);
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -86,7 +91,7 @@ export async function POST(
 
     // Verify user exists in database
     const userExists = await db.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
     });
 
     if (!userExists) {
@@ -116,7 +121,7 @@ export async function POST(
               ? antonyms.split(",").map((a: string) => a.trim())
               : [],
         categoryId: String(id),
-        userId: session.user.id,
+        userId,
       },
     });
 

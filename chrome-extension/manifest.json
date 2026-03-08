@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "VocabNote Quick Save",
+  "version": "1.0",
+  "description": "Quickly save English words to your VocabNote account.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "quick-save": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+V",
+        "mac": "Command+Shift+V"
+      },
+      "description": "Open Quick Save Popup"
+    }
+  }
+}
