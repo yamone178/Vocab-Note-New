@@ -1,15 +1,17 @@
 import { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 
 interface Props {
   icon: LucideIcon;
   value: string | number;
   label: string;
   delay: string;
+  href?: string;
 }
 
-export default function DashboardCard({ icon: Icon, value, label, delay }: Props) {
-  return (
-    <div className={`group animate-fadeInUp ${delay} flex items-center gap-4 rounded-2xl border border-emerald-100 bg-white p-5 shadow-[0_1px_3px_rgba(16,185,129,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-[0_4px_20px_rgba(16,185,129,0.12)]`}>
+export default function DashboardCard({ icon: Icon, value, label, delay, href }: Props) {
+  const content = (
+    <div className={`group animate-fadeInUp ${delay} flex h-full items-center gap-4 rounded-2xl border border-emerald-100 bg-white p-5 shadow-[0_1px_3px_rgba(16,185,129,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-[0_4px_20px_rgba(16,185,129,0.12)] ${href ? 'cursor-pointer' : ''}`}>
       <div className="flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 p-3 text-emerald-600 transition-transform duration-200 group-hover:scale-105">
         <Icon size={22} />
       </div>
@@ -19,4 +21,10 @@ export default function DashboardCard({ icon: Icon, value, label, delay }: Props
       </div>
     </div>
   );
+
+  if (href) {
+    return <Link href={href} className="block">{content}</Link>;
+  }
+
+  return content;
 }

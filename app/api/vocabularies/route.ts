@@ -116,6 +116,10 @@ export async function POST(req: Request) {
       categoryId = defaultCategory.id;
     }
 
+    // Set initial review to 1 day after creation (FR1)
+    const nextReview = new Date();
+    nextReview.setDate(nextReview.getDate() + 1);
+
     const vocabulary = await db.vocabulary.create({
       data: {
         word,
@@ -125,6 +129,8 @@ export async function POST(req: Request) {
         partOfSpeech: partOfSpeech || "noun",
         example: example || "",
         difficulty: difficulty || "BEGINNER",
+        nextReview,
+        interval: 1,
       },
     });
 

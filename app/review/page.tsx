@@ -9,15 +9,17 @@ import {
   TrendingUp, 
   BookOpen, 
   ArrowRight, 
-  Calendar,
-  Zap
+  Zap,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useGetDueVocabularies } from "@/features/vocabularies/hooks/useGetDueVocabularies";
 
 const ReviewPage = () => {
   const [activeTab, setActiveTab] = useState('review');
+  const { data, isLoading } = useGetDueVocabularies();
+  const cards = data?.data || [];
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' });
@@ -26,7 +28,7 @@ const ReviewPage = () => {
   const stats = [
     { 
       label: "Due Today", 
-      value: "23", 
+      value: cards.length.toString(), 
       icon: Clock, 
       color: "text-orange-500", 
       bgColor: "bg-orange-50",
@@ -57,28 +59,34 @@ const ReviewPage = () => {
     {
       title: "Flashcards",
       description: "Review with interactive flashcards",
-      countText: "23 cards due for review",
+      countText: `${cards.length} cards due for review`,
       icon: BookOpen,
       iconColor: "text-emerald-600",
       iconBg: "bg-emerald-500",
-      buttonColor: "bg-emerald-500"
+      buttonColor: "bg-emerald-500",
+      href: "/review/flashcards"
     },
     {
       title: "Quiz Mode",
       description: "Test your knowledge with quizzes",
-      countText: "Create custom quizzes",
+      countText: "Practice with multiple choice",
       icon: CheckCircle2,
       iconColor: "text-emerald-600",
       iconBg: "bg-emerald-500",
-      buttonColor: "bg-emerald-500"
+      buttonColor: "bg-emerald-500",
+      href: "/review/quiz"
     }
   ];
 
-  const schedule = [
-    { name: "Business", words: 8, status: "Weekly Review", type: "weekly", color: "text-emerald-600", bg: "bg-emerald-50" },
-    { name: "Technology", words: 5, status: "Due in 2 days", type: "upcoming", color: "text-gray-600", bg: "bg-gray-50" },
-    { name: "Medical", words: 10, status: "Due today", type: "due", color: "text-emerald-600", bg: "bg-emerald-50" },
-  ];
+  if (isLoading) {
+    return (
+      <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
+        <div className="flex h-[calc(100vh-120px)] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout
@@ -125,7 +133,7 @@ const ReviewPage = () => {
                 </div>
                 
                 <Link 
-                  href="/review/flashcards"
+                  href={mode.href}
                   className="flex items-center justify-between p-4 bg-emerald-50/50 rounded-2xl group cursor-pointer hover:bg-emerald-50 transition-colors"
                 >
                   <span className="text-emerald-900 font-medium">{mode.countText}</span>
@@ -138,7 +146,7 @@ const ReviewPage = () => {
           ))}
         </div>
 
-        {/* Review Schedule */}
+        {/* Review Schedule Placeholder */}
         <Card className="border-none shadow-sm bg-white">
           <CardContent className="p-8 space-y-6">
             <div className="flex items-center gap-2 mb-2">
@@ -147,30 +155,15 @@ const ReviewPage = () => {
             </div>
 
             <div className="space-y-4">
-              {schedule.map((item, i) => (
-                <div 
-                  key={i} 
-                  className={`flex items-center justify-between p-5 rounded-3xl border ${item.type === 'due' ? 'border-emerald-200 ring-4 ring-emerald-50/50' : 'border-gray-50'}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`h-12 w-12 rounded-full ${item.type === 'due' ? 'bg-emerald-500' : (item.type === 'weekly' ? 'bg-emerald-50' : 'bg-gray-50')} flex items-center justify-center`}>
-                      <span className={`font-bold ${item.type === 'due' ? 'text-white' : 'text-emerald-600'}`}>{item.name[0]}</span>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-900 text-lg">{item.name}</h4>
-                      <p className="text-sm text-gray-500">{item.words} words</p>
-                    </div>
-                  </div>
-                  
-                  <div className={`px-4 py-2 rounded-full text-sm font-bold ${
-                    item.type === 'due' 
-                      ? 'bg-emerald-100 text-emerald-600' 
-                      : (item.type === 'weekly' ? 'bg-emerald-50 text-emerald-700/60' : 'bg-gray-50 text-gray-500')
-                  }`}>
-                    {item.status}
-                  </div>
+              {cards.length > 0 ? (
+                <div className="p-5 rounded-3xl border border-emerald-200 bg-emerald-50/20">
+                    <p className="text-emerald-800 font-medium">You have {cards.length} words due for review today.</p>
                 </div>
-              ))}
+              ) : (
+                <div className="p-5 rounded-3xl border border-gray-100 bg-gray-50/50">
+                    <p className="text-gray-500">No reviews scheduled for today.</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

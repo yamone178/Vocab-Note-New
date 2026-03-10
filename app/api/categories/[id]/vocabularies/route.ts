@@ -122,6 +122,8 @@ export async function POST(
               : [],
         categoryId: String(id),
         userId,
+        nextReview: new Date(Date.now() + 24 * 60 * 60 * 1000), // First review in 1 day
+        interval: 1,
       },
     });
 

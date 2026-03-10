@@ -48,21 +48,25 @@ model Category {
 }
 
 model Vocabulary {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   word         String
   partOfSpeech String
   definition   String
   example      String?
   synonyms     String[]
   antonyms     String[]
-  difficulty   String   @default("BEGINNER")
-  createdAt    DateTime @default(now()) @map(name: "created_at")
-  updatedAt    DateTime @updatedAt @map(name: "updated_at")
-  categoryId   String   @map("categoryId")
-  category     Category @relation(fields: [categoryId], references: [id])
-  userId       String   @map("userId")
-  user         User     @relation(fields: [userId], references: [id])
-  knowIt       Boolean  @default(false) @map("know_it")
+  difficulty   String    @default("BEGINNER")
+  createdAt    DateTime  @default(now()) @map(name: "created_at")
+  updatedAt    DateTime  @updatedAt @map(name: "updated_at")
+  categoryId   String    @map("categoryId")
+  category     Category  @relation(fields: [categoryId], references: [id])
+  userId       String    @map("userId")
+  user         User      @relation(fields: [userId], references: [id])
+  knowIt       Boolean   @default(false) @map("know_it")
+  lastReview   DateTime? @map(name: "last_review")
+  nextReview   DateTime? @map(name: "next_review")
+  interval     Int       @default(0)
+  isMastered   Boolean   @default(false) @map("is_mastered")
 
   @@map(name: "vocabularies")
 }

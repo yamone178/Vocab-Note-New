@@ -12,11 +12,12 @@ import {
   Check, 
   Sparkles,
   HelpCircle,
-  Loader2
+  Loader2,
+  Trophy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGetRandomVocabularies } from "@/features/vocabularies/hooks/useGetRandomVocabularies";
-import { useUpdateVocabularyStatus } from "@/features/vocabularies/hooks/useUpdateVocabularyStatus";
+import { useGetDueVocabularies } from "@/features/vocabularies/hooks/useGetDueVocabularies";
+import { useReviewVocabulary } from "@/features/vocabularies/hooks/useReviewVocabulary";
 
 const FlashcardPage = () => {
   const router = useRouter();
@@ -24,14 +25,14 @@ const FlashcardPage = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const { data, isLoading, isError } = useGetRandomVocabularies(7);
-  const { mutate: updateStatus } = useUpdateVocabularyStatus();
+  const { data: cardsData, isLoading, error: isError } = useGetDueVocabularies();
+  const { mutateAsync: review } = useReviewVocabulary();
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' });
   };
 
-  const cards = data?.data || [];
+  const cards = cardsData?.data || [];
 
   const handleNext = () => {
     if (currentCardIndex < cards.length - 1) {
@@ -40,12 +41,21 @@ const FlashcardPage = () => {
     }
   };
 
-  const handleStatusUpdate = (knowIt: boolean) => {
+  const handleReviewUpdate = async (remembered: boolean, mastered: boolean = false) => {
     const currentCard = cards[currentCardIndex];
     if (currentCard) {
-      updateStatus({ id: currentCard.id, knowIt });
+      try {
+        await review({ id: currentCard.id, data: { remembered, mastered } });
+        
+        // If it was the last card, we'll likely be redirected or see empty state on next render
+        if (currentCardIndex >= cards.length - 1 && cards.length > 1) {
+             setCurrentCardIndex(0);
+        }
+        setIsFlipped(false);
+      } catch (err) {
+        console.error("Failed to update review status", err);
+      }
     }
-    handleNext();
   };
 
   const handlePrevious = () => {
@@ -69,8 +79,11 @@ const FlashcardPage = () => {
     return (
       <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
         <div className="flex flex-col h-[calc(100vh-120px)] items-center justify-center text-center p-6">
-          <h2 className="text-2xl font-bold text-emerald-900 mb-2">No words to review</h2>
-          <p className="text-emerald-600/70 mb-6">Add some words to your vocabulary first!</p>
+          <div className="h-20 w-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
+            <Check className="h-10 w-10 text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-emerald-900 mb-2">All caught up!</h2>
+          <p className="text-emerald-600/70 mb-6">You have no vocabulary words due for review right now.</p>
           <Button onClick={() => router.push("/vocabularies/new")} className="bg-emerald-600 hover:bg-emerald-700">
             Add New Word
           </Button>
@@ -79,7 +92,7 @@ const FlashcardPage = () => {
     );
   }
 
-  const currentCard = cards[currentCardIndex];
+  const currentCard = cards[currentCardIndex] || cards[0];
   const progressPercent = ((currentCardIndex + 1) / cards.length) * 100;
 
   return (
@@ -147,8 +160,14 @@ const FlashcardPage = () => {
                <p className="text-3xl font-bold text-gray-800 leading-tight max-w-2xl">
                  {currentCard.definition}
                </p>
+
+               {currentCard.example && (
+                 <div className="mt-6 p-4 bg-emerald-50 rounded-2xl italic text-emerald-700">
+                    "{currentCard.example}"
+                 </div>
+               )}
                
-               <div className="mt-12 flex items-center gap-2 text-gray-400 font-medium">
+               <div className="mt-8 flex items-center gap-2 text-gray-400 font-medium">
                  <RotateCw className="h-4 w-4" />
                  <span>Click to see word</span>
                </div>
@@ -157,40 +176,58 @@ const FlashcardPage = () => {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex items-center justify-center gap-6 mt-12 mb-8">
+        <div className="flex items-center justify-center gap-4 mt-12 mb-8 flex-wrap">
           <Button
             variant="ghost"
             onClick={handlePrevious}
             disabled={currentCardIndex === 0}
-            className="h-16 px-8 rounded-3xl text-gray-400 font-bold text-lg hover:bg-gray-50 disabled:opacity-30"
+            className="h-16 px-6 rounded-3xl text-gray-400 font-bold text-lg hover:bg-gray-50 disabled:opacity-30"
           >
             <ChevronLeft className="mr-2 h-6 w-6" />
             Previous
           </Button>
 
           <Button
-            onClick={handleNext}
-            disabled={currentCardIndex === cards.length - 1}
-            className="h-16 px-12 rounded-3xl bg-white border border-gray-100 text-gray-900 font-bold text-lg hover:bg-gray-50 shadow-sm"
-          >
-            Next
-            <ChevronRight className="ml-2 h-6 w-6" />
-          </Button>
-
-          <Button
-            className="h-16 px-10 rounded-3xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg gap-2 shadow-lg shadow-orange-100"
-            onClick={() => handleStatusUpdate(false)}
+            className="h-16 px-8 rounded-3xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg gap-2 shadow-lg shadow-orange-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleReviewUpdate(false);
+            }}
           >
             <X className="h-6 w-6" />
-            Still Learning
+            Forgot
           </Button>
 
           <Button
-            className="h-16 px-10 rounded-3xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg gap-2 shadow-lg shadow-emerald-100"
-            onClick={() => handleStatusUpdate(true)}
+            className="h-16 px-8 rounded-3xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg gap-2 shadow-lg shadow-emerald-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleReviewUpdate(true);
+            }}
           >
             <Check className="h-6 w-6" />
-            Know It
+            Remembered
+          </Button>
+
+          <Button
+            className="h-16 px-8 rounded-3xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-lg gap-2 shadow-lg shadow-indigo-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleReviewUpdate(true, true);
+            }}
+          >
+            <Trophy className="h-6 w-6" />
+            Mastered
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={handleNext}
+            disabled={currentCardIndex === cards.length - 1}
+            className="h-16 px-6 rounded-3xl border-gray-100 text-gray-900 font-bold text-lg hover:bg-gray-50 shadow-sm"
+          >
+            Skip
+            <ChevronRight className="ml-2 h-6 w-6" />
           </Button>
         </div>
 
