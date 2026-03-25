@@ -55,8 +55,9 @@ export const getVocabularyCount = async () => {
   return data.meta.total;
 };
 
-export const getQuizQuestions = async () => {
-  const response = await fetch("/api/vocabularies/quiz");
+export const getQuizQuestions = async (mode?: string) => {
+  const url = mode ? `/api/vocabularies/quiz?mode=${mode}` : "/api/vocabularies/quiz";
+  const response = await fetch(url);
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Failed to fetch quiz questions");

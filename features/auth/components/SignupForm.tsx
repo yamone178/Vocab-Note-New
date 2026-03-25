@@ -11,6 +11,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { signupSchema } from "../schema/auth";
+import { User, Mail, Lock, Loader2, GraduationCap } from "lucide-react";
 import * as z from "zod";
 
 export function SignupForm() {
@@ -40,17 +41,25 @@ export function SignupForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((values) => mutate(values))} className="space-y-4">
+      <form onSubmit={form.handleSubmit((values) => mutate(values))} className="space-y-5">
         {/* Full Name */}
         <FormField 
           control={form.control} 
           name="name" 
           render={({ field }) => (
             <FormItem>
+              <FormLabel className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <User className="h-4 w-4 text-emerald-600" />
+                Full Name
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Full Name" {...field} />
+                <Input 
+                  placeholder="John Doe" 
+                  className="h-11 border-emerald-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg"
+                  {...field} 
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )} 
         />
@@ -61,10 +70,19 @@ export function SignupForm() {
           name="email" 
           render={({ field }) => (
             <FormItem>
+              <FormLabel className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Mail className="h-4 w-4 text-emerald-600" />
+                Email Address
+              </FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Email" {...field} />
+                <Input 
+                  type="email" 
+                  placeholder="you@example.com" 
+                  className="h-11 border-emerald-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg"
+                  {...field} 
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )} 
         />
@@ -75,10 +93,19 @@ export function SignupForm() {
           name="password" 
           render={({ field }) => (
             <FormItem>
+              <FormLabel className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Lock className="h-4 w-4 text-emerald-600" />
+                Password
+              </FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Password" {...field} />
+                <Input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  className="h-11 border-emerald-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg"
+                  {...field} 
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )} 
         />
@@ -89,40 +116,74 @@ export function SignupForm() {
           name="confirmPassword" 
           render={({ field }) => (
             <FormItem>
+              <FormLabel className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Lock className="h-4 w-4 text-emerald-600" />
+                Confirm Password
+              </FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Confirm Password" {...field} />
+                <Input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  className="h-11 border-emerald-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg"
+                  {...field} 
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )} 
         />
 
-        {/* Proficiency Level (Matches your segmented-style UI) */}
-        <FormField control={form.control} name="proficiency" render={({ field }) => (
-          <FormItem className="border border-emerald-100 p-4 rounded-xl bg-emerald-50/30">
-            <FormLabel className="text-emerald-700 font-medium">Select Proficiency Level:</FormLabel>
-            <FormControl>
-              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-2 mt-2">
-                {["Beginner", "Intermediate", "Advanced"].map((level) => (
-                  <FormItem key={level} className="flex-1">
-                    <FormControl>
-                      <RadioGroupItem value={level} className="sr-only" />
-                    </FormControl>
-                    <FormLabel className={`flex justify-center border p-3 rounded-lg cursor-pointer text-sm font-medium transition-all duration-200 
-                      ${field.value === level
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                        : 'bg-white text-emerald-700 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50'}`}>
-                      {level}
-                    </FormLabel>
-                  </FormItem>
-                ))}
-              </RadioGroup>
-            </FormControl>
-          </FormItem>
-        )} />
+        {/* Proficiency Level */}
+        <FormField 
+          control={form.control} 
+          name="proficiency" 
+          render={({ field }) => (
+            <FormItem className="border-2 border-emerald-100 p-5 rounded-xl bg-gradient-to-br from-emerald-50/50 to-white">
+              <FormLabel className="text-sm font-semibold text-emerald-800 flex items-center gap-2 mb-3">
+                <GraduationCap className="h-4 w-4 text-emerald-600" />
+                Select Your English Proficiency Level
+              </FormLabel>
+              <FormControl>
+                <RadioGroup 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value} 
+                  className="grid grid-cols-3 gap-3"
+                >
+                  {["Beginner", "Intermediate", "Advanced"].map((level) => (
+                    <FormItem key={level} className="flex-1">
+                      <FormControl>
+                        <RadioGroupItem value={level} className="sr-only" />
+                      </FormControl>
+                      <FormLabel 
+                        className={`flex justify-center items-center border-2 p-3 rounded-lg cursor-pointer text-sm font-semibold transition-all duration-200 h-full
+                          ${field.value === level
+                            ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 text-white border-emerald-600 shadow-md shadow-emerald-200 scale-105'
+                            : 'bg-white text-emerald-700 border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/50 hover:scale-102'}`}
+                      >
+                        {level}
+                      </FormLabel>
+                    </FormItem>
+                  ))}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage className="text-xs mt-2" />
+            </FormItem>
+          )} 
+        />
 
-        <Button type="submit" disabled={isPending} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl shadow-sm transition-all duration-200 hover:shadow-md">
-          {isPending ? "Creating Account..." : "Sign Up"}
+        <Button 
+          type="submit" 
+          disabled={isPending} 
+          className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold py-6 rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl transition-all duration-200"
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating Account...
+            </>
+          ) : (
+            "Create Account"
+          )}
         </Button>
       </form>
     </Form>

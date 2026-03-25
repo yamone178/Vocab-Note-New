@@ -9,17 +9,46 @@ export async function GET(req: Request) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  const { searchParams } = new URL(req.url);
+  const mode = searchParams.get("mode");
+
   try {
-    // 1. Fetch 10 random vocabularies for the quiz
-    // We fetch a bit more to ensure we have enough for distractors
-    const allVocab = await db.vocabulary.findMany({
-      where: { userId },
-      select: {
-        id: true,
-        word: true,
-        definition: true,
-      },
-    });
+    // 1. Fetch vocabularies for the quiz
+    let allVocab;
+    
+    if (mode === "due") {
+      // Fetch only due vocabularies
+      const now = new Date();
+      allVocab = await db.vocabulary.findMany({
+        where: { 
+          userId,
+          isMastered: false,
+          nextReview: {
+            lte: now
+          }
+        },
+        select: {
+          id: true,
+          word: true,
+          definition: true,
+        },
+      });
+
+      // If not enough due words, fallback or notify
+      if (allVocab.length < 4) {
+        return NextResponse.json({ data: [] });
+      }
+    } else {
+      // Default: Fetch all vocabularies
+      allVocab = await db.vocabulary.findMany({
+        where: { userId },
+        select: {
+          id: true,
+          word: true,
+          definition: true,
+        },
+      });
+    }
 
     if (allVocab.length < 4) {
       return NextResponse.json(

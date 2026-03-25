@@ -14,6 +14,7 @@ export const useReviewVocabulary = () => {
     }) => updateVocabularyReviewStatus(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vocabularies", "review"] });
+      queryClient.invalidateQueries({ queryKey: ["vocabularies", "random"] });
     },
   });
 };

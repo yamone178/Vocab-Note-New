@@ -4,7 +4,16 @@ import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { useGetVocabularies } from "@/features/vocabularies/hooks/useGetVocabularies";
 import DashboardLayout from "@/common/components/DashboardLayout";
-import { BookOpen, Search, Plus, Loader2 } from "lucide-react";
+import { 
+  BookOpen, 
+  Search, 
+  Plus, 
+  Loader2, 
+  Sparkles, 
+  ChevronDown,
+  Layers,
+  GraduationCap
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +23,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Vocabulary } from "@/features/vocabularies/types";
@@ -114,6 +129,32 @@ const VocabulariesPage = () => {
                 </SelectContent>
               </Select>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline"
+                  className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Learn Random
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[180px] rounded-xl border-emerald-100 p-2">
+                <DropdownMenuItem asChild className="rounded-lg focus:bg-emerald-50 focus:text-emerald-700 cursor-pointer py-2.5">
+                  <Link href="/review/flashcards?mode=random" className="flex items-center gap-3 w-full">
+                    <Layers className="h-4 w-4" />
+                    <span className="font-medium">Flashcards</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="rounded-lg focus:bg-emerald-50 focus:text-emerald-700 cursor-pointer py-2.5">
+                  <Link href="/review/quiz?mode=random" className="flex items-center gap-3 w-full">
+                    <GraduationCap className="h-4 w-4" />
+                    <span className="font-medium">Quiz Mode</span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button 
               className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
               asChild

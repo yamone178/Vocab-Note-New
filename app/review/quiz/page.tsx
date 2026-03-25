@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from "next/navigation";
+import React, { useState } from 'react';
+import { useRouter, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import DashboardLayout from "@/common/components/DashboardLayout";
 import { 
@@ -21,6 +21,9 @@ import { useReviewVocabulary } from "@/features/vocabularies/hooks/useReviewVoca
 
 const QuizPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const mode = searchParams.get("mode") || "due";
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -28,7 +31,7 @@ const QuizPage = () => {
   const [isFinished, setIsFinished] = useState(false);
   const [incorrectWords, setIncorrectWords] = useState<string[]>([]);
 
-  const { data, isLoading, isError, error, refetch } = useGetQuiz();
+  const { data, isLoading, isError, error, refetch } = useGetQuiz(mode);
   const { mutate: review } = useReviewVocabulary();
 
   const questions = data?.data || [];
@@ -89,14 +92,24 @@ const QuizPage = () => {
     );
   }
 
-  if (isError) {
+  if (isError || (data && questions.length === 0)) {
     return (
       <DashboardLayout activeTab="review" setActiveTab={() => {}} onLogout={handleLogout}>
-        <div className="flex flex-col h-[calc(100vh-120px)] items-center justify-center space-y-4">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <h2 className="text-xl font-bold">Failed to load quiz</h2>
-          <p className="text-gray-500">{(error as any)?.message || "Make sure you have at least 4 vocabulary words."}</p>
-          <Button onClick={() => router.back()} variant="outline">Go Back</Button>
+        <div className="flex flex-col h-[calc(100vh-120px)] items-center justify-center text-center p-6">
+          <div className="h-20 w-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
+            <CheckCircle2 className="h-10 w-10 text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-emerald-900 mb-2">
+            {mode === "due" ? "All caught up!" : "No words found"}
+          </h2>
+          <p className="text-emerald-600/70 mb-6">
+            {mode === "due" 
+              ? "You have no vocabulary words due for review right now." 
+              : "Start adding some words to your vocabulary first!"}
+          </p>
+          <Button onClick={() => router.push("/vocabularies/new")} className="bg-emerald-600 hover:bg-emerald-700">
+            Add New Word
+          </Button>
         </div>
       </DashboardLayout>
     );

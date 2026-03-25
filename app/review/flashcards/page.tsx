@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import DashboardLayout from "@/common/components/DashboardLayout";
 import { 
@@ -17,15 +17,32 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetDueVocabularies } from "@/features/vocabularies/hooks/useGetDueVocabularies";
+import { useGetRandomVocabularies } from "@/features/vocabularies/hooks/useGetRandomVocabularies";
 import { useReviewVocabulary } from "@/features/vocabularies/hooks/useReviewVocabulary";
 
 const FlashcardPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const mode = searchParams.get("mode");
+  const isRandomMode = mode === "random";
+
   const [activeTab, setActiveTab] = useState('review');
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [reviewStats, setReviewStats] = useState({
+    remembered: 0,
+    forgot: 0,
+    mastered: 0
+  });
 
-  const { data: cardsData, isLoading, error: isError } = useGetDueVocabularies();
+  const { data: dueCardsData, isLoading: isDueLoading, error: isDueError } = useGetDueVocabularies();
+  const { data: randomCardsData, isLoading: isRandomLoading, error: isRandomError } = useGetRandomVocabularies(10);
+  
+  const isLoading = isRandomMode ? isRandomLoading : isDueLoading;
+  const isError = isRandomMode ? isRandomError : isDueError;
+  const cardsData = isRandomMode ? randomCardsData : dueCardsData;
+
   const { mutateAsync: review } = useReviewVocabulary();
 
   const handleLogout = async () => {
@@ -47,9 +64,17 @@ const FlashcardPage = () => {
       try {
         await review({ id: currentCard.id, data: { remembered, mastered } });
         
-        // If it was the last card, we'll likely be redirected or see empty state on next render
-        if (currentCardIndex >= cards.length - 1 && cards.length > 1) {
-             setCurrentCardIndex(0);
+        // Update stats
+        setReviewStats(prev => ({
+          remembered: prev.remembered + (remembered && !mastered ? 1 : 0),
+          forgot: prev.forgot + (!remembered ? 1 : 0),
+          mastered: prev.mastered + (mastered ? 1 : 0)
+        }));
+
+        if (currentCardIndex < cards.length - 1) {
+          setCurrentCardIndex(prev => prev + 1);
+        } else {
+          setIsCompleted(true);
         }
         setIsFlipped(false);
       } catch (err) {
@@ -75,6 +100,56 @@ const FlashcardPage = () => {
     );
   }
 
+  if (isCompleted) {
+    return (
+      <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
+        <div className="flex flex-col h-[calc(100vh-120px)] items-center justify-center text-center p-6 max-w-2xl mx-auto">
+          <div className="h-24 w-24 bg-emerald-100 rounded-full flex items-center justify-center mb-8">
+            <Trophy className="h-12 w-12 text-emerald-600" />
+          </div>
+          <h2 className="text-4xl font-black text-emerald-900 mb-4 tracking-tight">Review Completed!</h2>
+          <p className="text-emerald-600/70 text-lg mb-12">Great job! Here&apos;s how you did in this session:</p>
+          
+          <div className="grid grid-cols-3 gap-6 w-full mb-12">
+            <div className="p-6 bg-emerald-50 rounded-[32px] border border-emerald-100">
+              <div className="text-3xl font-black text-emerald-600 mb-1">{reviewStats.remembered}</div>
+              <div className="text-sm font-bold text-emerald-600/60 uppercase tracking-wider">Remembered</div>
+            </div>
+            <div className="p-6 bg-orange-50 rounded-[32px] border border-orange-100">
+              <div className="text-3xl font-black text-orange-600 mb-1">{reviewStats.forgot}</div>
+              <div className="text-sm font-bold text-orange-600/60 uppercase tracking-wider">Forgot</div>
+            </div>
+            <div className="p-6 bg-indigo-50 rounded-[32px] border border-indigo-100">
+              <div className="text-3xl font-black text-indigo-600 mb-1">{reviewStats.mastered}</div>
+              <div className="text-sm font-bold text-indigo-600/60 uppercase tracking-wider">Mastered</div>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <Button 
+              onClick={() => {
+                setIsCompleted(false);
+                setCurrentCardIndex(0);
+                setReviewStats({ remembered: 0, forgot: 0, mastered: 0 });
+                router.refresh();
+              }} 
+              className="h-14 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-lg font-bold"
+            >
+              Review Again
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => router.push("/vocabularies")} 
+              className="h-14 px-8 rounded-2xl border-emerald-100 text-emerald-700 text-lg font-bold"
+            >
+              Back to Vocabulary
+            </Button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   if (isError || cards.length === 0) {
     return (
       <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
@@ -82,8 +157,14 @@ const FlashcardPage = () => {
           <div className="h-20 w-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
             <Check className="h-10 w-10 text-emerald-600" />
           </div>
-          <h2 className="text-2xl font-bold text-emerald-900 mb-2">All caught up!</h2>
-          <p className="text-emerald-600/70 mb-6">You have no vocabulary words due for review right now.</p>
+          <h2 className="text-2xl font-bold text-emerald-900 mb-2">
+            {isRandomMode ? "No words found" : "All caught up!"}
+          </h2>
+          <p className="text-emerald-600/70 mb-6">
+            {isRandomMode 
+              ? "Start adding some words to your vocabulary first!" 
+              : "You have no vocabulary words due for review right now."}
+          </p>
           <Button onClick={() => router.push("/vocabularies/new")} className="bg-emerald-600 hover:bg-emerald-700">
             Add New Word
           </Button>
@@ -163,7 +244,7 @@ const FlashcardPage = () => {
 
                {currentCard.example && (
                  <div className="mt-6 p-4 bg-emerald-50 rounded-2xl italic text-emerald-700">
-                    "{currentCard.example}"
+                    &quot;{currentCard.example}&quot;
                  </div>
                )}
                
