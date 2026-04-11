@@ -35,7 +35,7 @@
     }
     button {
       padding: 8px 16px;
-      background-color: #2563eb;
+      background-color: #10b981;
       color: white;
       border: none;
       border-radius: 6px;
@@ -44,11 +44,28 @@
       transition: background-color 0.2s;
     }
     button:hover {
-      background-color: #1d4ed8;
+      background-color: #059669;
     }
     button:disabled {
-      background-color: #93c5fd;
+      background-color: #6ee7b7;
       cursor: not-allowed;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logout-btn {
+      padding: 4px 8px;
+      background-color: transparent;
+      color: #6b7280;
+      font-size: 12px;
+      font-weight: normal;
+      border: 1px solid #d1d5db;
+    }
+    .logout-btn:hover {
+      background-color: #f3f4f6;
+      color: #374151;
     }
     .status {
       font-size: 12px;
@@ -74,7 +91,10 @@
 </head>
 <body>
   <div id="mainContainer" class="container">
-    <h2>Quick Save Vocab</h2>
+    <div class="header">
+      <h2>Quick Save Vocab</h2>
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
     <div class="field">
       <label for="word">Word</label>
       <input type="text" id="word" placeholder="Word to save">

@@ -120,19 +120,25 @@ export async function POST(req: Request) {
     const nextReview = new Date();
     nextReview.setDate(nextReview.getDate() + 1);
 
-    const vocabulary = await db.vocabulary.create({
-      data: {
-        word,
-        categoryId,
-        userId,
-        definition: definition || "",
-        partOfSpeech: partOfSpeech || "noun",
-        example: example || "",
-        difficulty: difficulty || "BEGINNER",
-        nextReview,
-        interval: 1,
-      },
-    });
+    const [vocabulary] = await db.$transaction([
+      db.vocabulary.create({
+        data: {
+          word,
+          categoryId,
+          userId,
+          definition: definition || "",
+          partOfSpeech: partOfSpeech || "noun",
+          example: example || "",
+          difficulty: difficulty || "BEGINNER",
+          nextReview,
+          interval: 1,
+        },
+      }),
+      db.user.update({
+        where: { id: userId },
+        data: { xp: { increment: 5 } }, // Add XP for adding a word
+      }),
+    ]);
 
     return corsResponse(req, NextResponse.json(vocabulary, { status: 201 }));
   } catch (error) {

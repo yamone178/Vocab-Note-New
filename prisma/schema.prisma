@@ -21,15 +21,20 @@ enum ProficiencyLevel {
 }
 
 model User {
-  id               String           @id @default(cuid())
-  name             String?
-  email            String           @unique
-  password         String
-  proficiencyLevel ProficiencyLevel @default(BEGINNER) @map(name: "proficiency_level")
-  createdAt        DateTime         @default(now()) @map(name: "created_at")
-  updatedAt        DateTime         @updatedAt @map(name: "updated_at")
-  categories       Category[]
-  vocabularies     Vocabulary[]
+  id                       String            @id @default(cuid())
+  name                     String?
+  email                    String            @unique
+  image                    String? // Add image field
+  password                 String
+  proficiencyLevel         ProficiencyLevel  @default(BEGINNER) @map(name: "proficiency_level")
+  xp                       Int               @default(0)
+  dailyGoal                Int               @default(5) @map(name: "daily_goal") // Add dailyGoal field
+  currentDailyWordsLearned Int               @default(0) @map(name: "current_daily_words_learned") // Add currentDailyWordsLearned field
+  createdAt                DateTime          @default(now()) @map(name: "created_at")
+  updatedAt                DateTime          @updatedAt @map(name: "updated_at")
+  categories               Category[]
+  vocabularies             Vocabulary[]
+  interactions             UserInteraction[]
 
   @@map(name: "users")
 }
@@ -69,4 +74,18 @@ model Vocabulary {
   isMastered   Boolean   @default(false) @map("is_mastered")
 
   @@map(name: "vocabularies")
+}
+
+model UserInteraction {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id])
+  vocabularyWord  String   @map("vocabulary_word") // The distinct word interacted with
+  interactionType String   @map("interaction_type") // e.g., "VIEW", "SAVE", "MASTERED"
+  weight          Float    @default(1.0)
+  createdAt       DateTime @default(now()) @map(name: "created_at")
+  updatedAt       DateTime @updatedAt @map(name: "updated_at")
+
+  @@unique([userId, vocabularyWord, interactionType])
+  @@map(name: "user_interactions")
 }

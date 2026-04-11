@@ -18,7 +18,12 @@ export async function signUpAction(data: any) {
       name: data.name,
       email: data.email,
       password: hashedPassword,
-      proficiencyLevel: proficiencyMap[data.proficiency as keyof typeof proficiencyMap],
+      // proficiencyLevel: proficiencyMap[data.proficiency as keyof typeof proficiencyMap], // Temporarily commented out for debugging
+      categories: {
+        create: [
+          { name: "General" }
+        ]
+      }
     },
   });
 

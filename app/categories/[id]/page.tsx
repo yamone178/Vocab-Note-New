@@ -21,11 +21,15 @@ import {
 } from "@/components/ui/select";
 import { useGetVocabularies } from "@/features/vocabularies/hooks/useGetVocabularies";
 import { Vocabulary } from "@/features/vocabularies/types";
+import VocabularyCard from "@/features/vocabularies/components/VocabularyCard";
+import VocabularyDetailModal from "@/features/vocabularies/components/VocabularyDetailModal";
 
 function VocabularyContent({ categoryId }: { categoryId: string }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [difficulty, setDifficulty] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
+  const [selectedVocab, setSelectedVocab] = useState<(Vocabulary & { category?: { name: string } }) | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isLoading } = useGetVocabularies({
     categoryId,
@@ -105,19 +109,25 @@ function VocabularyContent({ categoryId }: { categoryId: string }) {
       </div>
 
         {/* Vocabulary List */}
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {vocabularies.map((vocab: Vocabulary) => (
-                <div key={vocab.id} className="rounded-2xl border border-gray-200 bg-white p-6">
-                    <div className="flex items-center mb-2">
-                        <h3 className="text-lg font-bold text-gray-900">{vocab.word}</h3>
-                        <span className="ml-2 text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{vocab.partOfSpeech}</span>
-                    </div>
-                    <p className="text-sm text-gray-600">{vocab.definition}</p>
-                </div>
+                <VocabularyCard
+                  key={vocab.id}
+                  vocab={{ ...vocab, category: { name: category?.name || "" } }}
+                  onClick={() => {
+                    setSelectedVocab({ ...vocab, category: { name: category?.name || "" } });
+                    setIsModalOpen(true);
+                  }}
+                />
             ))}
         </div>
 
         {/* Pagination removed */}
+        <VocabularyDetailModal 
+          vocabulary={selectedVocab}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
     </div>
   );
 }

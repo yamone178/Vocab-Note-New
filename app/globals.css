@@ -46,6 +46,34 @@
   --primary-foreground: oklch(0.20 0.03 165);
   --border: oklch(0.35 0.03 165);
 }
+/* Firefox Support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.92 0.02 160) transparent;
+}
+.dark * {
+  scrollbar-color: oklch(0.35 0.03 165) transparent;
+}
+
+/* WebKit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.92 0.02 160);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.64 0.15 165);
+}
+
+/* WebKit Dark Mode */
+.dark ::-webkit-scrollbar-thumb { background: oklch(0.35 0.03 165); }
+.dark ::-webkit-scrollbar-thumb:hover { background: oklch(0.75 0.12 165); }
 
 /* Custom Animations */
 @keyframes blob {

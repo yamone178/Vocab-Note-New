@@ -1,6 +1,7 @@
-'use client';
 
-import React, { useState } from 'react';
+"use client";
+
+import React, { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import DashboardLayout from "@/common/components/DashboardLayout";
@@ -18,6 +19,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGetQuiz } from "@/features/vocabularies/hooks/useGetQuiz";
 import { useReviewVocabulary } from "@/features/vocabularies/hooks/useReviewVocabulary";
+import { useSession } from "next-auth/react"; // Import useSession
+import { useQueryClient } from "@tanstack/react-query"; // Import useQueryClient
+import { toast } from "sonner"; // Import toast
+import XpAnimation from "@/common/components/XpAnimation"; // Import XpAnimation
+
+const XP_AMOUNT_COMPLETE_QUIZ = 10; // XP for completing a quiz
+
+interface XpAnimationState {
+  xp: number;
+  top: number;
+  left: number;
+  show: boolean;
+}
 
 const QuizPage = () => {
   const router = useRouter();
@@ -30,14 +44,28 @@ const QuizPage = () => {
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [incorrectWords, setIncorrectWords] = useState<string[]>([]);
+  const [xpAnimation, setXpAnimation] = useState<XpAnimationState | null>(null); // State for XP animation
+  const [hasXpBeenAwarded, setHasXpBeenAwarded] = useState(false); // State to prevent duplicate XP
+  const finishQuizButtonRef = useRef<HTMLButtonElement>(null); // Ref for the finish quiz button
 
   const { data, isLoading, isError, error, refetch } = useGetQuiz(mode);
   const { mutate: review } = useReviewVocabulary();
+  const { data: session } = useSession(); // Get session to access user ID
+  const queryClient = useQueryClient(); // Get query client to invalidate queries
 
   const questions = data?.data || [];
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/' });
+    await signOut({ callbackUrl: "/" });
+  };
+
+  const handleXpEarned = (xpAmount: number, targetRect: { top: number; left: number; width: number; height: number; }) => {
+    setXpAnimation({
+      xp: xpAmount,
+      top: targetRect.top - 20, // Position above the button
+      left: targetRect.left + targetRect.width / 2 - 20, // Center horizontally
+      show: true,
+    });
   };
 
   const handleOptionSelect = (option: string) => {
@@ -62,13 +90,38 @@ const QuizPage = () => {
     setIsAnswered(true);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedOption(null);
       setIsAnswered(false);
     } else {
       setIsFinished(true);
+
+      // Award XP for completing the quiz
+      if (session?.user?.id && !hasXpBeenAwarded) { // Only award XP once
+        try {
+          await fetch(`/api/users/${session.user.id}/xp`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ xpAmount: XP_AMOUNT_COMPLETE_QUIZ }),
+          });
+          queryClient.invalidateQueries({ queryKey: ["userProfile", session.user.id] }); // Invalidate user profile to refetch XP
+          toast.success(`+${XP_AMOUNT_COMPLETE_QUIZ} XP!`);
+          setHasXpBeenAwarded(true); // Set flag to prevent duplicate XP
+          
+          // Show XP animation
+          if (finishQuizButtonRef.current) {
+            const rect = finishQuizButtonRef.current.getBoundingClientRect();
+            handleXpEarned(XP_AMOUNT_COMPLETE_QUIZ, rect);
+          }
+        } catch (error) {
+          console.error("Error updating XP:", error);
+          toast.error("Failed to update XP after quiz.");
+        }
+      }
     }
   };
 
@@ -79,6 +132,8 @@ const QuizPage = () => {
     setScore(0);
     setIsFinished(false);
     setIncorrectWords([]);
+    setXpAnimation(null); // Reset XP animation state on restart
+    setHasXpBeenAwarded(false); // Reset XP awarded flag on restart
     refetch();
   };
 
@@ -119,7 +174,7 @@ const QuizPage = () => {
     const percentage = Math.round((score / questions.length) * 100);
     return (
       <DashboardLayout activeTab="review" setActiveTab={() => {}} onLogout={handleLogout}>
-        <div className="max-w-2xl mx-auto py-12">
+        <div className="relative max-w-2xl mx-auto py-12"> {/* Add relative for animation */}
           <Card className="border-none shadow-xl bg-white rounded-[40px] overflow-hidden">
             <CardContent className="p-12 text-center space-y-8">
               <div className="inline-flex items-center justify-center h-24 w-24 rounded-full bg-emerald-100 text-emerald-600">
@@ -128,7 +183,7 @@ const QuizPage = () => {
               
               <div className="space-y-2">
                 <h1 className="text-4xl font-black text-gray-900">Quiz Completed!</h1>
-                <p className="text-xl text-gray-500 font-medium">Here&apos;s how you performed today</p>
+                <p className="text-xl text-gray-500 font-medium">Here's how you performed today</p>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
@@ -178,7 +233,7 @@ const QuizPage = () => {
                 </Button>
                 <Button 
                   variant="outline"
-                  onClick={() => router.push('/review')}
+                  onClick={() => router.push("/review")}
                   className="flex-1 h-16 rounded-3xl border-gray-200 text-gray-700 font-bold text-lg"
                 >
                   Back to Review
@@ -186,6 +241,14 @@ const QuizPage = () => {
               </div>
             </CardContent>
           </Card>
+          {xpAnimation?.show && (
+            <XpAnimation
+              xp={xpAnimation.xp}
+              top={xpAnimation.top}
+              left={xpAnimation.left}
+              onComplete={() => setXpAnimation(null)}
+            />
+          )}
         </div>
       </DashboardLayout>
     );
@@ -196,7 +259,7 @@ const QuizPage = () => {
 
   return (
     <DashboardLayout activeTab="review" setActiveTab={() => {}} onLogout={handleLogout}>
-      <div className="max-w-3xl mx-auto py-8 px-4">
+      <div className="relative max-w-3xl mx-auto py-8 px-4"> {/* Add relative for animation */}
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Button 
@@ -224,7 +287,7 @@ const QuizPage = () => {
         <Card className="border-none shadow-xl bg-white rounded-[40px] overflow-hidden mb-8">
           <CardContent className="p-10 text-center">
             <h2 className="text-sm font-bold text-emerald-600 uppercase tracking-widest mb-4">What is the meaning of</h2>
-            <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-2">&quot;{currentQuestion.word}&quot;</h1>
+            <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-2">"{currentQuestion.word}"</h1>
           </CardContent>
         </Card>
 
@@ -274,14 +337,24 @@ const QuizPage = () => {
             </Button>
           ) : (
             <Button
+              ref={finishQuizButtonRef} // Attach ref to the button
               onClick={handleNext}
+              disabled={hasXpBeenAwarded || currentQuestionIndex === questions.length - 1} // Disable after XP awarded
               className="h-16 px-12 rounded-3xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-xl shadow-emerald-200 flex items-center gap-2"
             >
-              {currentQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+              {currentQuestionIndex === questions.length - 1 ? "Finish Quiz" : "Next Question"}
               <ArrowRight className="h-5 w-5" />
             </Button>
           )}
         </div>
+        {xpAnimation?.show && (
+            <XpAnimation
+              xp={xpAnimation.xp}
+              top={xpAnimation.top}
+              left={xpAnimation.left}
+              onComplete={() => setXpAnimation(null)}
+            />
+          )}
       </div>
     </DashboardLayout>
   );

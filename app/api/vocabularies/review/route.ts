@@ -43,7 +43,17 @@ export async function GET(req: Request) {
       },
     });
 
-    return corsResponse(req, NextResponse.json({ data: dueVocabularies }));
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const completedThisWeek = await db.vocabulary.count({
+      where: {
+        userId,
+        lastReview: {
+          gte: oneWeekAgo,
+        },
+      },
+    });
+
+    return corsResponse(req, NextResponse.json({ data: dueVocabularies, completedThisWeek }));
   } catch (error) {
     console.error("Error fetching due vocabularies:", error);
     return corsResponse(req, NextResponse.json(

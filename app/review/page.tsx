@@ -20,6 +20,7 @@ const ReviewPage = () => {
   const [activeTab, setActiveTab] = useState('review');
   const { data, isLoading } = useGetDueVocabularies();
   const cards = data?.data || [];
+  const completedThisWeek = data?.completedThisWeek || 0;
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' });
@@ -37,22 +38,13 @@ const ReviewPage = () => {
     },
     { 
       label: "Completed This Week", 
-      value: "145", 
+      value: completedThisWeek.toString(), 
       icon: CheckCircle2, 
       color: "text-emerald-500", 
       bgColor: "bg-emerald-50",
       iconColor: "text-white",
       iconBg: "bg-emerald-500"
-    },
-    { 
-      label: "Review Streak", 
-      value: "7 days", 
-      icon: TrendingUp, 
-      color: "text-teal-500", 
-      bgColor: "bg-teal-50",
-      iconColor: "text-white",
-      iconBg: "bg-teal-500"
-    },
+    }
   ];
 
   const reviewModes = [
@@ -101,7 +93,7 @@ const ReviewPage = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stats.map((stat, i) => (
             <Card key={i} className="border-none shadow-sm bg-white overflow-hidden">
               <CardContent className="p-6 flex items-center gap-5">

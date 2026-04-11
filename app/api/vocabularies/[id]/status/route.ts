@@ -17,15 +17,24 @@ export async function PATCH(
     const body = await req.json();
     const { knowIt } = body;
 
-    const vocabulary = await db.vocabulary.update({
-      where: {
-        id,
-        userId, // Ensure user owns the vocabulary
-      },
-      data: {
-        knowIt,
-      },
-    });
+    const [vocabulary] = await db.$transaction([
+      db.vocabulary.update({
+        where: {
+          id,
+          userId, // Ensure user owns the vocabulary
+        },
+        data: {
+          knowIt,
+        },
+      }),
+      // Add XP when a user marks a word as known
+      ...(knowIt ? [
+        db.user.update({
+          where: { id: userId },
+          data: { xp: { increment: 5 } },
+        })
+      ] : [])
+    ]);
 
     return NextResponse.json(vocabulary);
   } catch (error) {

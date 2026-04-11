@@ -65,10 +65,16 @@ export async function POST(
       updateData.nextReview = nextReview;
     }
 
-    const updatedVocabulary = await db.vocabulary.update({
-      where: { id },
-      data: updateData,
-    });
+    const [updatedVocabulary] = await db.$transaction([
+      db.vocabulary.update({
+        where: { id },
+        data: updateData,
+      }),
+      db.user.update({
+        where: { id: userId },
+        data: { xp: { increment: 2 } }, // Add XP for reviewing a flashcard
+      }),
+    ]);
 
     return NextResponse.json(updatedVocabulary);
   } catch (error) {

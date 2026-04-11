@@ -65,9 +65,6 @@ const VocabularyDetailModal = ({
               </div>
               <h2 className="text-3xl font-bold">{vocabulary.word}</h2>
             </div>
-            <button className="h-10 w-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-              <Volume2 className="h-5 w-5" />
-            </button>
           </div>
         </div>
 

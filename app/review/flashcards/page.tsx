@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react"; // Import useRef
 import { useRouter, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import DashboardLayout from "@/common/components/DashboardLayout";
@@ -19,6 +20,16 @@ import { Button } from "@/components/ui/button";
 import { useGetDueVocabularies } from "@/features/vocabularies/hooks/useGetDueVocabularies";
 import { useGetRandomVocabularies } from "@/features/vocabularies/hooks/useGetRandomVocabularies";
 import { useReviewVocabulary } from "@/features/vocabularies/hooks/useReviewVocabulary";
+import XpAnimation from "@/common/components/XpAnimation"; // Import XpAnimation
+
+const XP_AMOUNT_REVIEW_FLASHCARD = 2;
+
+interface XpAnimationState {
+  xp: number;
+  top: number;
+  left: number;
+  show: boolean;
+}
 
 const FlashcardPage = () => {
   const router = useRouter();
@@ -26,7 +37,7 @@ const FlashcardPage = () => {
   const mode = searchParams.get("mode");
   const isRandomMode = mode === "random";
 
-  const [activeTab, setActiveTab] = useState('review');
+  const [activeTab, setActiveTab] = useState("review");
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -35,6 +46,10 @@ const FlashcardPage = () => {
     forgot: 0,
     mastered: 0
   });
+  const [xpAnimation, setXpAnimation] = useState<XpAnimationState | null>(null); // State for XP animation
+
+  const rememberedButtonRef = useRef<HTMLButtonElement>(null); // Ref for remembered button
+  const masteredButtonRef = useRef<HTMLButtonElement>(null); // Ref for mastered button
 
   const { data: dueCardsData, isLoading: isDueLoading, error: isDueError } = useGetDueVocabularies();
   const { data: randomCardsData, isLoading: isRandomLoading, error: isRandomError } = useGetRandomVocabularies(10);
@@ -46,7 +61,7 @@ const FlashcardPage = () => {
   const { mutateAsync: review } = useReviewVocabulary();
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/' });
+    await signOut({ callbackUrl: "/" });
   };
 
   const cards = cardsData?.data || [];
@@ -58,7 +73,16 @@ const FlashcardPage = () => {
     }
   };
 
-  const handleReviewUpdate = async (remembered: boolean, mastered: boolean = false) => {
+  const handleXpEarned = (xpAmount: number, targetRect: { top: number; left: number; width: number; height: number; }) => {
+    setXpAnimation({
+      xp: xpAmount,
+      top: targetRect.top - 20,
+      left: targetRect.left + targetRect.width / 2 - 20,
+      show: true,
+    });
+  };
+
+  const handleReviewUpdate = async (remembered: boolean, mastered: boolean = false, buttonRef?: React.RefObject<HTMLButtonElement | null>) => {
     const currentCard = cards[currentCardIndex];
     if (currentCard) {
       try {
@@ -70,6 +94,12 @@ const FlashcardPage = () => {
           forgot: prev.forgot + (!remembered ? 1 : 0),
           mastered: prev.mastered + (mastered ? 1 : 0)
         }));
+
+        // Show XP animation
+        if (buttonRef?.current) {
+          const rect = buttonRef.current.getBoundingClientRect();
+          handleXpEarned(XP_AMOUNT_REVIEW_FLASHCARD, rect);
+        }
 
         if (currentCardIndex < cards.length - 1) {
           setCurrentCardIndex(prev => prev + 1);
@@ -103,12 +133,12 @@ const FlashcardPage = () => {
   if (isCompleted) {
     return (
       <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
-        <div className="flex flex-col h-[calc(100vh-120px)] items-center justify-center text-center p-6 max-w-2xl mx-auto">
+        <div className="relative flex flex-col h-[calc(100vh-120px)] items-center justify-center text-center p-6 max-w-2xl mx-auto"> {/* Add relative for animation */}
           <div className="h-24 w-24 bg-emerald-100 rounded-full flex items-center justify-center mb-8">
             <Trophy className="h-12 w-12 text-emerald-600" />
           </div>
           <h2 className="text-4xl font-black text-emerald-900 mb-4 tracking-tight">Review Completed!</h2>
-          <p className="text-emerald-600/70 text-lg mb-12">Great job! Here&apos;s how you did in this session:</p>
+          <p className="text-emerald-600/70 text-lg mb-12">Great job! Here's how you did in this session:</p>
           
           <div className="grid grid-cols-3 gap-6 w-full mb-12">
             <div className="p-6 bg-emerald-50 rounded-[32px] border border-emerald-100">
@@ -145,6 +175,16 @@ const FlashcardPage = () => {
               Back to Vocabulary
             </Button>
           </div>
+
+          {xpAnimation?.show && (
+            <XpAnimation
+              xp={xpAnimation.xp}
+              top={xpAnimation.top}
+              left={xpAnimation.left}
+              onComplete={() => setXpAnimation(null)}
+            />
+          )}
+
         </div>
       </DashboardLayout>
     );
@@ -182,7 +222,7 @@ const FlashcardPage = () => {
       setActiveTab={setActiveTab}
       onLogout={handleLogout}
     >
-      <div className="max-w-5xl mx-auto h-[calc(100vh-120px)] flex flex-col p-4 md:p-6">
+      <div className="relative max-w-5xl mx-auto h-[calc(100vh-120px)] flex flex-col p-4 md:p-6"> {/* Added relative for animation */}
         {/* Progress Bar Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex-1 max-w-md">
@@ -205,7 +245,7 @@ const FlashcardPage = () => {
         <div className="flex-1 flex flex-col items-center justify-center relative perspective-1000">
           <div 
             onClick={() => setIsFlipped(!isFlipped)}
-            className={`w-full max-w-3xl aspect-[1.6/1] cursor-pointer transition-all duration-500 preserve-3d relative ${isFlipped ? 'rotate-y-180' : ''}`}
+            className={`w-full max-w-3xl aspect-[1.6/1] cursor-pointer transition-all duration-500 preserve-3d relative ${isFlipped ? "rotate-y-180" : ""}`}
           >
             {/* Front of Card */}
             <div className="absolute inset-0 backface-hidden bg-white rounded-[40px] shadow-sm border border-emerald-50 flex flex-col items-center justify-center p-12 text-center overflow-hidden">
@@ -244,7 +284,7 @@ const FlashcardPage = () => {
 
                {currentCard.example && (
                  <div className="mt-6 p-4 bg-emerald-50 rounded-2xl italic text-emerald-700">
-                    &quot;{currentCard.example}&quot;
+                    "{currentCard.example}"
                  </div>
                )}
                
@@ -280,10 +320,11 @@ const FlashcardPage = () => {
           </Button>
 
           <Button
+            ref={rememberedButtonRef} // Attach ref
             className="h-16 px-8 rounded-3xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg gap-2 shadow-lg shadow-emerald-100"
             onClick={(e) => {
               e.stopPropagation();
-              handleReviewUpdate(true);
+              handleReviewUpdate(true, false, rememberedButtonRef); // Pass button ref
             }}
           >
             <Check className="h-6 w-6" />
@@ -291,10 +332,11 @@ const FlashcardPage = () => {
           </Button>
 
           <Button
+            ref={masteredButtonRef} // Attach ref
             className="h-16 px-8 rounded-3xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-lg gap-2 shadow-lg shadow-indigo-100"
             onClick={(e) => {
               e.stopPropagation();
-              handleReviewUpdate(true, true);
+              handleReviewUpdate(true, true, masteredButtonRef); // Pass button ref
             }}
           >
             <Trophy className="h-6 w-6" />
@@ -311,6 +353,15 @@ const FlashcardPage = () => {
             <ChevronRight className="ml-2 h-6 w-6" />
           </Button>
         </div>
+
+        {xpAnimation?.show && (
+          <XpAnimation
+            xp={xpAnimation.xp}
+            top={xpAnimation.top}
+            left={xpAnimation.left}
+            onComplete={() => setXpAnimation(null)}
+          />
+        )}
 
         {/* Floating Help Button */}
         <button className="fixed bottom-8 right-8 h-12 w-12 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-lg">

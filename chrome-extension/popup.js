@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const definitionText = document.getElementById('definition');
   const saveBtn = document.getElementById('saveBtn');
   const statusDiv = document.getElementById('status');
+  const logoutBtn = document.getElementById('logoutBtn');
 
   let sourceUrl = '';
   let authToken = '';
@@ -102,6 +103,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     loadCategories();
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    clearAuthToken();
+    showAuth();
   });
 
   loginBtn.addEventListener('click', async () => {
