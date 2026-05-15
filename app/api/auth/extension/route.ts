@@ -63,6 +63,7 @@ export async function POST(req: Request) {
         email: user.email,
         name: user.name,
         proficiencyLevel: user.proficiencyLevel,
+        xp: user.xp,
       },
       secret,
       maxAge: 60 * 60 * 24 * 30,

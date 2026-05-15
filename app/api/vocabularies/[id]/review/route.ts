@@ -7,7 +7,7 @@ const INTERVAL_PROGRESSION = [1, 3, 7, 14, 30, 60, 120];
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const userId = await getAuthUserId(req);
 

@@ -4,7 +4,7 @@ import { prisma as db } from "@/common/lib/prisma";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const userId = await getAuthUserId(req);
 
@@ -13,7 +13,7 @@ export async function PATCH(
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { knowIt } = body;
 

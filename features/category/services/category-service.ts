@@ -44,7 +44,7 @@ export const getVocabularies = async ({
   if (difficulty) url.searchParams.append("difficulty", difficulty);
   if (knowIt !== undefined) url.searchParams.append("knowIt", knowIt.toString());
 
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), { cache: "no-store" });
 
   if (!response.ok) {
     throw new Error("Failed to fetch vocabularies");
@@ -90,7 +90,7 @@ export const getCategories = async ({
   if (page) url.searchParams.append("page", page.toString());
   if (limit) url.searchParams.append("limit", limit.toString());
 
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), { cache: "no-store" });
 
   if (!response.ok) {
     throw new Error("Failed to fetch categories");

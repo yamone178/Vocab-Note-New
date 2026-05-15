@@ -12,6 +12,7 @@ import CategoryForm from "./CategoryForm";
 import { useCreateCategory } from "../hooks/useCreateCategories";
 import { Button } from "@/components/ui/button";
 import { CategorySchema } from "../schemas/category-schema";
+import { PlusCircle } from "lucide-react";
 
 const CreateCategory = () => {
   const [open, setOpen] = useState(false);
@@ -28,7 +29,13 @@ const CreateCategory = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Add Category</Button>
+        <Button
+        className="flex-1 sm:flex-none h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm transition-all rounded-xl"
+        >
+          <PlusCircle className=" h-4 w-4" />
+          Add Category
+          
+        </Button>
       </DialogTrigger>
       <DialogContent className="bg-white">
         <DialogHeader>

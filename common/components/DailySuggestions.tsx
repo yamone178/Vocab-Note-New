@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Sparkles, Check, BookmarkPlus, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface DailySuggestionsProps {
   selectedWord: string | null;
@@ -17,6 +20,7 @@ interface Recommendation {
 export default function DailySuggestions({ selectedWord, setSelectedWord }: DailySuggestionsProps) {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     async function fetchRecommendations() {
@@ -35,27 +39,55 @@ export default function DailySuggestions({ selectedWord, setSelectedWord }: Dail
     fetchRecommendations();
   }, []);
 
-  const handleInteraction = async (word: string, type: "VIEW" | "SAVE" | "MASTERED") => {
+  const handleInteraction = async (word: string, type: "VIEW" | "SAVE" | "MASTERED", activeRecommendation?: Recommendation) => {
     try {
       await fetch("/api/interactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vocabularyWord: word, interactionType: type }),
       });
-      if (type !== "VIEW") {
-        alert(`Word ${word} marked as ${type.toLowerCase()}`);
+      
+      if (type === "SAVE" || type === "MASTERED") {
+        if (activeRecommendation) {
+          // Add to vocabulary
+          const res = await fetch("/api/vocabularies", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              word: activeRecommendation.word,
+              definition: activeRecommendation.meaning,
+              example: activeRecommendation.example,
+              partOfSpeech: "noun", // Defaulting as we don't have this from recommendations endpoint
+              difficulty: "BEGINNER", // Defaulting
+            }),
+          });
+          
+          if (res.ok) {
+             if (type === "MASTERED") {
+               toast.success(`Word "${word}" marked as learned!`);
+             } else {
+               toast.success(`Word "${word}" saved to your vocabulary!`);
+             }
+             // Invalidate vocabulary queries to update counts and lists
+             queryClient.invalidateQueries({ queryKey: ["vocabularies"] });
+             // Optionally remove from recommendations list locally so user knows it's saved
+             setRecommendations((prev) => prev.filter((r) => r.word !== word));
+          } else {
+             toast.error(`Failed to save "${word}" to vocabulary.`);
+          }
+        }
       }
     } catch (error) {
       console.error("Failed to save interaction", error);
+      if (type !== "VIEW") {
+        toast.error("An error occurred while saving the word.");
+      }
     }
   };
 
   const toggleWord = (word: string) => {
-    const isSelecting = selectedWord !== word;
-    setSelectedWord(isSelecting ? word : null);
-    if (isSelecting) {
-      handleInteraction(word, "VIEW");
-    }
+    setSelectedWord(word);
+    handleInteraction(word, "VIEW");
   };
 
   const activeRecommendation = recommendations.find(r => r.word === selectedWord);
@@ -82,44 +114,54 @@ export default function DailySuggestions({ selectedWord, setSelectedWord }: Dail
               <button
                 key={word}
                 onClick={() => toggleWord(word)}
-                className={`rounded-full border px-4 py-2 text-[0.875rem] font-medium transition-all duration-200 hover:-translate-y-0.5
-                  ${selectedWord === word
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white text-emerald-800 border-emerald-200 hover:border-emerald-300 hover:shadow-[0_3px_10px_rgba(16,185,129,0.15)]'}`}
+                className={`rounded-full border px-4 py-2 text-[0.875rem] font-medium transition-all duration-200 hover:-translate-y-0.5 bg-white text-emerald-800 border-emerald-200 hover:border-emerald-300 hover:shadow-[0_3px_10px_rgba(16,185,129,0.15)]`}
               >
                 {word}
               </button>
             ))}
           </div>
 
-          {activeRecommendation && (
-            <div className="mt-2 rounded-xl bg-white/60 p-4 border border-emerald-100">
-              <h4 className="font-bold text-emerald-900 text-lg mb-1">{activeRecommendation.word}</h4>
-              <p className="text-sm text-emerald-800 mb-2 font-medium">{activeRecommendation.meaning}</p>
-              {activeRecommendation.example && (
-                <p className="text-sm text-emerald-600 italic border-l-2 border-emerald-300 pl-2 mb-4">
-                  &quot;{activeRecommendation.example}&quot;
-                </p>
-              )}
+          <Dialog open={!!selectedWord} onOpenChange={(open) => !open && setSelectedWord(null)}>
+            <DialogContent className="sm:max-w-[425px] bg-white">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-emerald-900">{activeRecommendation?.word}</DialogTitle>
+                <DialogDescription className="text-emerald-700 font-medium text-base mt-2">
+                  {activeRecommendation?.meaning}
+                </DialogDescription>
+              </DialogHeader>
               
-              <div className="flex gap-2">
+              <div className="py-4">
+                {activeRecommendation?.example && (
+                  <p className="text-sm text-emerald-800 italic border-l-4 border-emerald-400 pl-3 bg-emerald-50 py-2 rounded-r-md">
+                    &quot;{activeRecommendation.example}&quot;
+                  </p>
+                )}
+              </div>
+              
+              <div className="flex gap-3 justify-end pt-2 border-t border-emerald-100">
                 <button 
-                  onClick={() => handleInteraction(activeRecommendation.word, "SAVE")}
-                  className="flex items-center gap-1.5 text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-md font-medium transition-colors"
+                  onClick={() => {
+                    if (activeRecommendation) handleInteraction(activeRecommendation.word, "SAVE", activeRecommendation);
+                    setSelectedWord(null);
+                  }}
+                  className="flex items-center gap-1.5 text-sm bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2 rounded-md font-medium transition-colors"
                 >
-                  <BookmarkPlus size={14} />
+                  <BookmarkPlus size={16} />
                   Save
                 </button>
                 <button 
-                  onClick={() => handleInteraction(activeRecommendation.word, "MASTERED")}
-                  className="flex items-center gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md font-medium transition-colors"
+                  onClick={() => {
+                    if (activeRecommendation) handleInteraction(activeRecommendation.word, "MASTERED", activeRecommendation);
+                    setSelectedWord(null);
+                  }}
+                  className="flex items-center gap-1.5 text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
                 >
-                  <Check size={14} />
+                  <Check size={16} />
                   Mark as Learned
                 </button>
               </div>
-            </div>
-          )}
+            </DialogContent>
+          </Dialog>
         </div>
       )}
     </div>

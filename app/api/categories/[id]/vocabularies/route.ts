@@ -4,7 +4,7 @@ import { prisma as db } from "@/common/lib/prisma";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const userId = await getAuthUserId(req);
 
@@ -66,7 +66,7 @@ export async function GET(
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const userId = await getAuthUserId(req);
 
