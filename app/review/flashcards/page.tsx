@@ -31,7 +31,7 @@ interface XpAnimationState {
   show: boolean;
 }
 
-const FlashcardPage = () => {
+const FlashcardPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
@@ -384,6 +384,16 @@ const FlashcardPage = () => {
         }
       `}</style>
     </DashboardLayout>
+  );
+};
+
+import { Suspense } from "react";
+
+const FlashcardPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FlashcardPageContent />
+    </Suspense>
   );
 };
 

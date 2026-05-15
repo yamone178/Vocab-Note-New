@@ -7,8 +7,9 @@ export const useUpdateVocabularyStatus = () => {
   return useMutation({
     mutationFn: ({ id, knowIt }: { id: string; knowIt: boolean }) =>
       updateVocabularyStatus(id, knowIt),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vocabularies"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["vocabularies"] });
+      await queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
   });
 };

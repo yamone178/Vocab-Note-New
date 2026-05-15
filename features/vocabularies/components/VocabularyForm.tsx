@@ -36,12 +36,13 @@ interface VocabularyFormProps {
   onSubmit: (values: VocabularySchema) => void;
   initialValues?: Partial<VocabularySchema>;
   isPending?: boolean;
+  isEdit?: boolean;
   onXpEarned?: (xpAmount: number, targetRect: { top: number; left: number; width: number; height: number; }) => void;
 }
 
 const COMMON_PARTS_OF_SPEECH = ["Noun", "Verb", "Adjective", "Adverb", "Pronoun", "Other"];
 
-const VocabularyForm = ({ onSubmit, initialValues, isPending, onXpEarned }: VocabularyFormProps) => {
+const VocabularyForm = ({ onSubmit, initialValues, isPending, onXpEarned, isEdit }: VocabularyFormProps) => {
   const { data: categories } = useGetCategories();
   const submitButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -399,7 +400,7 @@ const VocabularyForm = ({ onSubmit, initialValues, isPending, onXpEarned }: Voca
             )}
           >
             <BookOpen className="mr-2 h-6 w-6" />
-            {isPending ? "Adding Word..." : "Save to Vocabulary"}
+            {isPending ? (isEdit ? "Updating Word..." : "Adding Word...") : (isEdit ? "Update Vocabulary" : "Save to Vocabulary")}
           </Button>
         </div>
       </form>

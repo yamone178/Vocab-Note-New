@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Brain, Target, TrendingUp, Sparkles, CheckCircle2, ArrowRight, Zap, Globe } from "lucide-react";
+import { BookOpen, Brain, Target, TrendingUp, Sparkles, CheckCircle2, ArrowRight, Zap, Globe, Volume2, RotateCw } from "lucide-react";
+import { useState } from "react";
 
 export default function LandingPage() {
+
+
+  const [isFlipped, setIsFlipped] = useState(false);
+
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-emerald-200 selection:text-emerald-900 font-sans">
       {/* Navigation */}
@@ -64,37 +69,86 @@ export default function LandingPage() {
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full px-8 py-6 text-base border-slate-200 hover:bg-slate-50 text-slate-700">
+                {/* <Button asChild size="lg" variant="outline" className="rounded-full px-8 py-6 text-base border-slate-200 hover:bg-slate-50 text-slate-700">
                   <Link href="/auth/login">
                     See How It Works
                   </Link>
-                </Button>
+                </Button> */}
               </div>
             </div>
+{/* Hero Visual Flashcard */}
+            <div className="flex-1 flex flex-col items-center justify-center relative perspective-1000 lg:h-[600px] w-full">
+              <div 
+                onClick={() => setIsFlipped(!isFlipped)}
+                className={`relative w-full max-w-[440px] aspect-[1.5/1] cursor-pointer transition-all duration-700 preserve-3d shadow-2xl rounded-[40px] ${
+                  isFlipped ? "rotate-y-180" : "-rotate-2 hover:rotate-0"
+                }`}
+              >
+                {/* FRONT: The Word */}
+                <div className="absolute inset-0 backface-hidden bg-white rounded-[40px] border border-slate-100 flex flex-col items-center justify-center p-10 text-center overflow-hidden z-10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white via-white to-emerald-50/50 -z-10" />
+                  
+                  <div className="flex items-center gap-2 text-emerald-600 font-bold mb-6">
+                    <Sparkles className="h-4 w-4" />
+                    <span className="text-xs uppercase tracking-widest">New Word</span>
+                  </div>
+                  
+                  <h2 className="text-6xl font-black text-slate-900 mb-4 tracking-tighter">
+                    Welcome
+                  </h2>
+                  
+                  <div className="px-5 py-1.5 bg-emerald-100/50 text-emerald-700 rounded-full text-sm font-bold mb-10">
+                    exclamation
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                    <RotateCw className="h-4 w-4" />
+                    <span>Click to see definition</span>
+                  </div>
+                </div>
 
-            {/* Hero Visual Mockup */}
-            <div className="relative mx-auto w-full max-w-md lg:max-w-none lg:h-[500px] flex items-center justify-center">
-              {/* Main Flashcard */}
-              <div className="relative z-20 w-full max-w-sm bg-white rounded-3xl shadow-2xl shadow-slate-200/50 border border-slate-100 p-8 transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500">
-                <div className="flex justify-between items-center mb-8">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Spanish • Hard</span>
-                  <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                </div>
-                <div className="text-center mb-10">
-                  <h3 className="text-4xl font-bold text-slate-900 mb-2">desarrollo</h3>
-                  <p className="text-lg text-slate-500 italic">noun</p>
-                </div>
-                <div className="space-y-3">
-                  <Button className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl py-6">Show Translation</Button>
+                {/* BACK: The Definition */}
+                <div className="absolute inset-0 backface-hidden rotate-y-180 bg-white rounded-[40px] border border-emerald-100 flex flex-col p-10 text-left shadow-inner z-0">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-emerald-50/30 to-white -z-10" />
+
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-600 block mb-1">Definition</span>
+                      <h3 className="text-2xl font-bold text-slate-900">Welcome</h3>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
+                        <Volume2 className="h-5 w-5 text-emerald-600" />
+                    </div>
+                  </div>
+                  
+                  <div className="flex-grow">
+                    <p className="text-lg text-slate-700 leading-snug font-medium mb-6">
+                      Used to greet someone in a polite or friendly way upon their arrival.
+                    </p>
+
+                    <div className="relative p-5 bg-slate-50 rounded-2xl border-l-4 border-emerald-500">
+                       <span className="absolute -top-3 left-4 px-2 bg-white text-[10px] font-bold text-slate-400 uppercase tracking-wider">Example</span>
+                       <p className="text-sm italic text-slate-600 leading-relaxed">
+                          "A warm <span className="text-emerald-700 font-semibold underline decoration-emerald-300 underline-offset-2">welcome</span> to our home!"
+                       </p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 flex items-center justify-center gap-2 text-slate-300 text-[10px] font-bold uppercase tracking-widest">
+                    <RotateCw className="h-3 w-3" />
+                    <span>Click to flip back</span>
+                  </div>
                 </div>
               </div>
-              
-              {/* Background Card */}
-              <div className="absolute z-10 w-full max-w-sm bg-emerald-50 rounded-3xl shadow-lg border border-emerald-100 p-8 transform rotate-[4deg] translate-x-4 translate-y-4 opacity-70">
-                 <div className="h-48"></div> {/* Spacer */}
-              </div>
+
+              {/* Visual Stack Effect */}
+              {!isFlipped && (
+                <>
+                    <div className="absolute -z-10 w-full max-w-[440px] aspect-[1.5/1] bg-slate-200/40 rounded-[40px] transform rotate-1 translate-x-2 translate-y-2" />
+                    <div className="absolute -z-20 w-full max-w-[440px] aspect-[1.5/1] bg-slate-100/40 rounded-[40px] transform rotate-4 translate-x-4 translate-y-4" />
+                </>
+              )}
             </div>
-
           </div>
         </div>
       </section>
@@ -150,7 +204,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-2xl font-bold mb-3">Detailed Analytics</h3>
                 <p className="text-slate-400 max-w-md leading-relaxed">
-                  Watch your vocabulary grow over time. Track your daily streaks, retention rates, and most difficult words with beautiful, easy-to-read charts.
+                  Watch your vocabulary grow over time. 
                 </p>
               </div>
             </div>
@@ -169,32 +223,13 @@ export default function LandingPage() {
               <p className="text-lg text-slate-600 mb-8">
                 Whether you're studying for an exam, learning a new language for travel, or just expanding your native vocabulary, VocabNote gives you the edge.
               </p>
-              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-4">
-                {[
-                  "Unlimited collections",
-                  "Audio pronunciations",
-                  "Detailed statistics",
-                  "Cross-device sync",
-                  "Offline mode support",
-                  "100% Free to start"
-                ].map((benefit, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="flex-shrink-0 h-5 w-5 rounded-full bg-emerald-100 flex items-center justify-center">
-                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                    </div>
-                    <span className="text-slate-700 font-medium">{benefit}</span>
-                  </div>
-                ))}
-              </div>
+              
             </div>
             
             <div className="relative rounded-3xl bg-emerald-600 p-8 sm:p-12 text-center text-white overflow-hidden shadow-xl shadow-emerald-600/20">
               <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
               <Globe className="h-16 w-16 mx-auto mb-6 opacity-80" />
-              <h3 className="text-3xl font-bold mb-4 relative z-10">Ready to start?</h3>
-              <p className="text-emerald-100 mb-8 relative z-10">
-                Join thousands of learners building their vocabulary right now.
-              </p>
+              <h3 className="text-3xl font-bold mb-5 relative z-10">Ready to start?</h3>
               <Button asChild size="lg" className="w-full sm:w-auto bg-white text-emerald-700 hover:bg-emerald-50 rounded-full px-8 py-6 text-base font-bold shadow-lg relative z-10">
                 <Link href="/auth/signup">
                   Create Your Free Account

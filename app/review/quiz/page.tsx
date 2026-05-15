@@ -33,7 +33,7 @@ interface XpAnimationState {
   show: boolean;
 }
 
-const QuizPage = () => {
+const QuizPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode") || "due";
@@ -357,6 +357,16 @@ const QuizPage = () => {
           )}
       </div>
     </DashboardLayout>
+  );
+};
+
+import { Suspense } from "react";
+
+const QuizPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <QuizPageContent />
+    </Suspense>
   );
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Vocabulary } from "../types";
 import { useDeleteVocabulary } from "../hooks/useDeleteVocabulary";
 import ConfirmationModal from "@/common/components/ConfirmationModal";
@@ -29,6 +30,7 @@ const VocabularyDetailModal = ({
   isOpen,
   onClose,
 }: VocabularyDetailModalProps) => {
+  const router = useRouter();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const { mutate: deleteVocab, isPending: isDeleting } = useDeleteVocabulary();
 
@@ -44,6 +46,11 @@ const VocabularyDetailModal = ({
         },
       },
     );
+  };
+
+  const handleEdit = () => {
+    onClose();
+    router.push(`/vocabularies/${vocabulary.id}/edit`);
   };
 
   return (
@@ -152,7 +159,10 @@ const VocabularyDetailModal = ({
             >
               Close
             </button>
-            <button className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors">
+            <button 
+              onClick={handleEdit}
+              className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors"
+            >
               Edit Word
             </button>
           </div>

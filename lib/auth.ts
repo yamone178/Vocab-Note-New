@@ -58,7 +58,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) {
           console.log("User not found for email:", credentials.email);
-          return null;
+          throw new Error("Invalid email or password");
         }
 
         console.log("User found, comparing passwords...");
@@ -69,7 +69,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) {
           console.log("Invalid password for user:", credentials.email);
-          return null;
+          throw new Error("Invalid email or password");
         }
         console.log("Password is valid. User authorized:", user.email);
 

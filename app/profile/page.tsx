@@ -60,7 +60,7 @@ const UserProfilePage = () => {
       setActiveTab={setActiveTab}
       onLogout={handleLogout}
     >
-      <div className="mx-auto max-w-5xl space-y-8 p-4 md:p-0">
+      <div className=" max-w-5xl space-y-8 ">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">My Profile</h1>
 
         <div className="grid gap-6 md:grid-cols-12">

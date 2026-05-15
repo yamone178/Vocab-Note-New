@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { loginSchema } from "../schema/auth";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import * as z from "zod";
+import { toast } from "react-toastify";
 
 export function LoginForm() {
   const router = useRouter();
@@ -32,16 +33,21 @@ export function LoginForm() {
         redirect: false,
       });
       if (result?.error) {
+        if (result.error === "CredentialsSignin") {
+          throw new Error("Invalid email or password");
+        }
         throw new Error(result.error);
       }
       return result;
     },
     onSuccess: () => {
+      toast.success("Successfully logged in!");
       // Redirect to home page on successful login
       router.push("/");
     },
     onError: (error) => {
       console.error("Login failed", error);
+      toast.error(error.message || "Invalid email or password");
     }
   });
 

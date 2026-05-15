@@ -22,7 +22,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-[#f6fef9] antialiased font-sans">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={onLogout} session={session} userData={userData} />
-      <main className="mx-auto max-w-[1300px] px-8 py-10">
+      <main className="flex flex-col h-full max-w-6xl mx-auto space-y-6 p-4 md:p-8">
         {children}
       </main>
     </div>

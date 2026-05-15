@@ -13,7 +13,8 @@ import {
   ChevronDown,
   Layers,
   GraduationCap,
-  Filter
+  Filter,
+  PlusCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,7 +72,7 @@ const VocabulariesPage = () => {
       setActiveTab={setActiveTab}
       onLogout={handleLogout}
     >
-      <div className="flex flex-col h-full max-w-6xl mx-auto space-y-6 p-4 md:p-8">
+      <div className="flex flex-col h-full max-w-6xl space-y-6 ">
         
         {/* Header & Primary Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -118,7 +119,7 @@ const VocabulariesPage = () => {
               asChild
             >
               <Link href="/vocabularies/new">
-                <Plus className="mr-2 h-4 w-4" />
+                <PlusCircle className=" h-4 w-4" />
                 Add Word
               </Link>
             </Button>

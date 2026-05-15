@@ -19,9 +19,8 @@ export const useCreateVocabulary = () => {
       return createVocabulary(data);
     },
     onSuccess: async (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["vocabularies", { categoryId: variables.categoryId }],
-      });
+      await queryClient.invalidateQueries({ queryKey: ["vocabularies"] });
+      await queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast.success("Vocabulary created successfully");
 
       // Update user XP manually through the dedicated route since transaction didn't work

@@ -46,7 +46,7 @@ function CategoriesContent() {
   }
 
   return (
-    <div className="flex flex-col h-full max-w-6xl mx-auto space-y-6 p-4 md:p-8">
+    <div className="flex flex-col h-full max-w-6xl space-y-6">
       
       {/* Header & Primary Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

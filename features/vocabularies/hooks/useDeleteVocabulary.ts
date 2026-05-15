@@ -9,19 +9,9 @@ export const useDeleteVocabulary = () => {
     mutationFn: ({ id }) => {
       return deleteVocabulary(id);
     },
-    onSuccess: (_, variables) => {
-      // Invalidate both general vocabularies and category-specific ones
-      queryClient.invalidateQueries({
-        queryKey: ["vocabularies"],
-      });
-      if (variables.categoryId) {
-        queryClient.invalidateQueries({
-          queryKey: ["vocabularies", { categoryId: variables.categoryId }],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["vocabularies"],
-        });
-      }
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ["vocabularies"] });
+      await queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast.success("Vocabulary deleted successfully");
     },
     onError: (error) => {
