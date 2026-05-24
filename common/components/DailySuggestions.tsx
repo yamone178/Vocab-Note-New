@@ -122,15 +122,15 @@ export default function DailySuggestions({ selectedWord, setSelectedWord }: Dail
           </div>
 
           <Dialog open={!!selectedWord} onOpenChange={(open) => !open && setSelectedWord(null)}>
-            <DialogContent className="sm:max-w-[425px] bg-white">
+            <DialogContent className="sm:max-w-[425px] bg-white w-[90vw] max-w-md rounded-2xl sm:rounded-lg">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-emerald-900">{activeRecommendation?.word}</DialogTitle>
-                <DialogDescription className="text-emerald-700 font-medium text-base mt-2">
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-emerald-900">{activeRecommendation?.word}</DialogTitle>
+                <DialogDescription className="text-emerald-700 font-medium text-sm sm:text-base mt-1 sm:mt-2">
                   {activeRecommendation?.meaning}
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="py-4">
+              <div className="py-3 sm:py-4">
                 {activeRecommendation?.example && (
                   <p className="text-sm text-emerald-800 italic border-l-4 border-emerald-400 pl-3 bg-emerald-50 py-2 rounded-r-md">
                     &quot;{activeRecommendation.example}&quot;
@@ -138,13 +138,13 @@ export default function DailySuggestions({ selectedWord, setSelectedWord }: Dail
                 )}
               </div>
               
-              <div className="flex gap-3 justify-end pt-2 border-t border-emerald-100">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end pt-2 border-t border-emerald-100">
                 <button 
                   onClick={() => {
                     if (activeRecommendation) handleInteraction(activeRecommendation.word, "SAVE", activeRecommendation);
                     setSelectedWord(null);
                   }}
-                  className="flex items-center gap-1.5 text-sm bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2 rounded-md font-medium transition-colors"
+                  className="flex items-center justify-center gap-1.5 text-sm bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2 rounded-md font-medium transition-colors w-full sm:w-auto"
                 >
                   <BookmarkPlus size={16} />
                   Save
@@ -154,7 +154,7 @@ export default function DailySuggestions({ selectedWord, setSelectedWord }: Dail
                     if (activeRecommendation) handleInteraction(activeRecommendation.word, "MASTERED", activeRecommendation);
                     setSelectedWord(null);
                   }}
-                  className="flex items-center gap-1.5 text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                  className="flex items-center justify-center gap-1.5 text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-medium transition-colors w-full sm:w-auto"
                 >
                   <Check size={16} />
                   Mark as Learned

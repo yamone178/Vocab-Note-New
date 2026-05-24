@@ -200,14 +200,14 @@ const QuizPageContent = () => {
                 <p className="text-xl text-gray-500 font-medium">Here's how you performed today</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="p-8 rounded-[32px] bg-emerald-50 border border-emerald-100">
-                  <p className="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-1">Correct</p>
-                  <p className="text-4xl font-black text-emerald-700">{score}</p>
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                <div className="p-4 sm:p-8 rounded-[24px] sm:rounded-[32px] bg-emerald-50 border border-emerald-100">
+                  <p className="text-xs sm:text-sm font-bold text-emerald-600 uppercase tracking-wider mb-1">Correct</p>
+                  <p className="text-3xl sm:text-4xl font-black text-emerald-700">{score}</p>
                 </div>
-                <div className="p-8 rounded-[32px] bg-red-50 border border-red-100">
-                  <p className="text-sm font-bold text-red-600 uppercase tracking-wider mb-1">Incorrect</p>
-                  <p className="text-4xl font-black text-red-700">{questions.length - score}</p>
+                <div className="p-4 sm:p-8 rounded-[24px] sm:rounded-[32px] bg-red-50 border border-red-100">
+                  <p className="text-xs sm:text-sm font-bold text-red-600 uppercase tracking-wider mb-1">Incorrect</p>
+                  <p className="text-3xl sm:text-4xl font-black text-red-700">{questions.length - score}</p>
                 </div>
               </div>
 
@@ -298,15 +298,15 @@ const QuizPageContent = () => {
         </div>
 
         {/* Question Card */}
-        <Card className="border-none shadow-xl bg-white rounded-[40px] overflow-hidden mb-8">
-          <CardContent className="p-10 text-center">
-            <h2 className="text-sm font-bold text-emerald-600 uppercase tracking-widest mb-4">What is the meaning of</h2>
-            <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-2">"{currentQuestion.word}"</h1>
+        <Card className="border-none shadow-xl bg-white rounded-[32px] sm:rounded-[40px] overflow-hidden mb-6 sm:mb-8">
+          <CardContent className="p-6 sm:p-10 text-center">
+            <h2 className="text-xs sm:text-sm font-bold text-emerald-600 uppercase tracking-widest mb-2 sm:mb-4">What is the meaning of</h2>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-2 break-words">"{currentQuestion.word}"</h1>
           </CardContent>
         </Card>
 
         {/* Options */}
-        <div className="space-y-4 mb-12">
+        <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-12">
           {currentQuestion.options.map((option: string, index: number) => {
             let variantClass = "bg-white border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/30";
             let icon = null;
@@ -314,15 +314,15 @@ const QuizPageContent = () => {
             if (isAnswered) {
               if (option === currentQuestion.correctAnswer) {
                 variantClass = "bg-emerald-50 border-emerald-500 text-emerald-700 ring-2 ring-emerald-500/20";
-                icon = <CheckCircle2 className="h-6 w-6 text-emerald-600" />;
+                icon = <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 flex-shrink-0" />;
               } else if (selectedOption === option) {
                 variantClass = "bg-red-50 border-red-500 text-red-700 ring-2 ring-red-500/20";
-                icon = <XCircle className="h-6 w-6 text-red-600" />;
+                icon = <XCircle className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 flex-shrink-0" />;
               } else {
                 variantClass = "bg-white border-gray-100 opacity-50";
               }
             } else if (selectedOption === option) {
-              variantClass = "bg-emerald-50 border-emerald-500 text-emerald-700 ring-2 ring-emerald-500/20";
+              variantClass = "bg-emerald-50/50 border-emerald-200 ring-2 ring-emerald-500/10";
             }
 
             return (
@@ -330,9 +330,9 @@ const QuizPageContent = () => {
                 key={index}
                 onClick={() => handleOptionSelect(option)}
                 disabled={isAnswered}
-                className={`w-full p-6 text-left rounded-[28px] border-2 transition-all duration-200 flex items-center justify-between group ${variantClass}`}
+                className={`w-full p-4 sm:p-6 text-left rounded-[20px] sm:rounded-[28px] border-2 transition-all duration-200 flex items-center justify-between group gap-4 ${variantClass}`}
               >
-                <span className="text-lg font-bold leading-tight">{option}</span>
+                <span className="text-base sm:text-lg font-bold leading-tight">{option}</span>
                 {icon}
               </button>
             );
@@ -346,7 +346,7 @@ const QuizPageContent = () => {
               ref={checkAnswerButtonRef}
               onClick={handleSubmitAnswer}
               disabled={!selectedOption}
-              className="h-16 px-12 rounded-3xl bg-gray-900 hover:bg-black text-white font-bold text-lg shadow-xl shadow-gray-200 disabled:opacity-50"
+              className="h-14 sm:h-16 px-8 sm:px-12 rounded-[24px] sm:rounded-3xl bg-gray-900 hover:bg-black text-white font-bold text-base sm:text-lg shadow-xl shadow-gray-200 disabled:opacity-50 w-full sm:w-auto"
             >
               Check Answer
             </Button>
@@ -354,7 +354,7 @@ const QuizPageContent = () => {
             <Button
               ref={finishQuizButtonRef} // Attach ref to the button
               onClick={handleNext}
-              className="h-16 px-12 rounded-3xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-xl shadow-emerald-200 flex items-center gap-2"
+              className="h-14 sm:h-16 px-8 sm:px-12 rounded-[24px] sm:rounded-3xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base sm:text-lg shadow-xl shadow-emerald-200 flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               {currentQuestionIndex === questions.length - 1 ? "Finish Quiz" : "Next Question"}
               <ArrowRight className="h-5 w-5" />

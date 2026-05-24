@@ -170,22 +170,22 @@ const FlashcardPageContent = () => {
           <h2 className="text-4xl font-black text-emerald-900 mb-4 tracking-tight">Review Completed!</h2>
           <p className="text-emerald-600/70 text-lg mb-12">Great job! Here's how you did in this session:</p>
           
-          <div className="grid grid-cols-3 gap-6 w-full mb-12">
-            <div className="p-6 bg-emerald-50 rounded-[32px] border border-emerald-100">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 w-full mb-8 sm:mb-12">
+            <div className="p-4 sm:p-6 bg-emerald-50 rounded-[24px] sm:rounded-[32px] border border-emerald-100">
               <div className="text-3xl font-black text-emerald-600 mb-1">{reviewStats.remembered}</div>
               <div className="text-sm font-bold text-emerald-600/60 uppercase tracking-wider">Remembered</div>
             </div>
-            <div className="p-6 bg-orange-50 rounded-[32px] border border-orange-100">
+            <div className="p-4 sm:p-6 bg-orange-50 rounded-[24px] sm:rounded-[32px] border border-orange-100">
               <div className="text-3xl font-black text-orange-600 mb-1">{reviewStats.forgot}</div>
               <div className="text-sm font-bold text-orange-600/60 uppercase tracking-wider">Forgot</div>
             </div>
-            <div className="p-6 bg-indigo-50 rounded-[32px] border border-indigo-100">
+            <div className="p-4 sm:p-6 bg-indigo-50 rounded-[24px] sm:rounded-[32px] border border-indigo-100">
               <div className="text-3xl font-black text-indigo-600 mb-1">{reviewStats.mastered}</div>
               <div className="text-sm font-bold text-indigo-600/60 uppercase tracking-wider">Mastered</div>
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button 
               onClick={() => {
                 setIsCompleted(false);
@@ -300,11 +300,11 @@ const FlashcardPageContent = () => {
                  <span>{currentCard.category?.name || "Vocabulary"}</span>
                </div>
                
-               <h2 className="text-7xl font-black text-emerald-900 mb-8 tracking-tight">
+               <h2 className="text-4xl sm:text-6xl md:text-7xl font-black text-emerald-900 mb-6 sm:mb-8 tracking-tight break-all">
                  {currentCard.word}
                </h2>
                
-               <div className="px-6 py-2 bg-emerald-50 text-emerald-600 rounded-full font-bold mb-12">
+               <div className="px-4 sm:px-6 py-2 bg-emerald-50 text-emerald-600 rounded-full font-bold mb-8 sm:mb-12 text-sm sm:text-base">
                  {currentCard.partOfSpeech}
                </div>
                
@@ -321,12 +321,12 @@ const FlashcardPageContent = () => {
                  <span>Definition</span>
                </div>
                
-               <p className="text-3xl font-bold text-gray-800 leading-tight max-w-2xl">
+               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 leading-tight max-w-2xl px-4">
                  {currentCard.definition}
                </p>
 
                {currentCard.example && (
-                 <div className="mt-6 p-4 bg-emerald-50 rounded-2xl italic text-emerald-700">
+                 <div className="mt-4 sm:mt-6 p-4 bg-emerald-50 rounded-2xl italic text-emerald-700 text-sm sm:text-base mx-4">
                     "{currentCard.example}"
                  </div>
                )}
@@ -340,49 +340,49 @@ const FlashcardPageContent = () => {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex items-center justify-center gap-4 mt-12 mb-8 flex-wrap">
+        <div className="flex items-center justify-center gap-3 sm:gap-4 mt-8 sm:mt-12 mb-8 flex-wrap">
           <Button
             variant="ghost"
             onClick={handlePrevious}
             disabled={currentCardIndex === 0}
-            className="h-16 px-6 rounded-3xl text-gray-400 font-bold text-lg hover:bg-gray-50 disabled:opacity-30"
+            className="h-14 sm:h-16 px-4 sm:px-6 rounded-[24px] sm:rounded-3xl text-gray-400 font-bold text-base sm:text-lg hover:bg-gray-50 disabled:opacity-30"
           >
-            <ChevronLeft className="mr-2 h-6 w-6" />
-            Previous
+            <ChevronLeft className="mr-1 sm:mr-2 h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="hidden sm:inline">Previous</span>
           </Button>
 
           <Button
-            className="h-16 px-8 rounded-3xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg gap-2 shadow-lg shadow-orange-100"
+            className="h-14 sm:h-16 px-6 sm:px-8 rounded-[24px] sm:rounded-3xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-base sm:text-lg gap-2 shadow-lg shadow-orange-100 flex-1 sm:flex-none"
             onClick={(e) => {
               e.stopPropagation();
               handleReviewUpdate(false);
             }}
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 sm:h-6 sm:w-6" />
             Forgot
           </Button>
 
           <Button
             ref={rememberedButtonRef} // Attach ref
-            className="h-16 px-8 rounded-3xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg gap-2 shadow-lg shadow-emerald-100"
+            className="h-14 sm:h-16 px-6 sm:px-8 rounded-[24px] sm:rounded-3xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-base sm:text-lg gap-2 shadow-lg shadow-emerald-100 flex-1 sm:flex-none"
             onClick={(e) => {
               e.stopPropagation();
               handleReviewUpdate(true, false, rememberedButtonRef); // Pass button ref
             }}
           >
-            <Check className="h-6 w-6" />
+            <Check className="h-5 w-5 sm:h-6 sm:w-6" />
             Remembered
           </Button>
 
           <Button
             ref={masteredButtonRef} // Attach ref
-            className="h-16 px-8 rounded-3xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-lg gap-2 shadow-lg shadow-indigo-100"
+            className="h-14 sm:h-16 px-6 sm:px-8 rounded-[24px] sm:rounded-3xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-base sm:text-lg gap-2 shadow-lg shadow-indigo-100 w-full sm:w-auto mt-2 sm:mt-0"
             onClick={(e) => {
               e.stopPropagation();
               handleReviewUpdate(true, true, masteredButtonRef); // Pass button ref
             }}
           >
-            <Trophy className="h-6 w-6" />
+            <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
             Mastered
           </Button>
 
@@ -390,10 +390,10 @@ const FlashcardPageContent = () => {
             variant="outline"
             onClick={handleNext}
             disabled={currentCardIndex === cards.length - 1}
-            className="h-16 px-6 rounded-3xl border-gray-100 text-gray-900 font-bold text-lg hover:bg-gray-50 shadow-sm"
+            className="h-14 sm:h-16 px-4 sm:px-6 rounded-[24px] sm:rounded-3xl border-gray-100 text-gray-900 font-bold text-base sm:text-lg hover:bg-gray-50 shadow-sm"
           >
-            Skip
-            <ChevronRight className="ml-2 h-6 w-6" />
+            <span className="hidden sm:inline">Skip</span>
+            <ChevronRight className="ml-1 sm:ml-2 h-5 w-5 sm:h-6 sm:w-6" />
           </Button>
         </div>
 
@@ -407,9 +407,9 @@ const FlashcardPageContent = () => {
         )}
 
         {/* Floating Help Button */}
-        <button className="fixed bottom-8 right-8 h-12 w-12 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-lg">
+        <button className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 h-12 w-12 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-lg z-10">
           <HelpCircle className="h-6 w-6" />
-        </button>
+        </button>>
       </div>
 
       <style jsx global>{`

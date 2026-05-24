@@ -106,16 +106,16 @@ const ReviewPage = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {stats.map((stat, i) => (
             <Card key={i} className="border-none shadow-sm bg-white overflow-hidden">
-              <CardContent className="p-6 flex items-center gap-5">
-                <div className={`h-14 w-14 rounded-2xl ${stat.iconBg} flex items-center justify-center shadow-lg shadow-gray-100`}>
-                  <stat.icon className="h-7 w-7 text-white" />
+              <CardContent className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5">
+                <div className={`h-12 w-12 sm:h-14 sm:w-14 rounded-2xl ${stat.iconBg} flex items-center justify-center shadow-lg shadow-gray-100 flex-shrink-0`}>
+                  <stat.icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-gray-800">{stat.value}</div>
-                  <div className="text-sm font-medium text-gray-500">{stat.label}</div>
+                  <div className="text-3xl sm:text-4xl font-bold text-gray-800">{stat.value}</div>
+                  <div className="text-xs sm:text-sm font-medium text-gray-500">{stat.label}</div>
                 </div>
               </CardContent>
             </Card>
@@ -123,26 +123,26 @@ const ReviewPage = () => {
         </div>
 
         {/* Review Modes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {reviewModes.map((mode, i) => (
             <Card key={i} className="border-none shadow-sm hover:shadow-md transition-shadow bg-white">
-              <CardContent className="p-8">
-                <div className="flex items-start gap-5 mb-8">
-                  <div className="h-14 w-14 rounded-2xl bg-emerald-500 flex items-center justify-center">
-                    <mode.icon className="h-7 w-7 text-white" />
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-start gap-4 sm:gap-5 mb-6 sm:mb-8">
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                    <mode.icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900">{mode.title}</h3>
-                    <p className="text-gray-500">{mode.description}</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{mode.title}</h3>
+                    <p className="text-sm sm:text-base text-gray-500">{mode.description}</p>
                   </div>
                 </div>
                 
                 <Link 
                   href={mode.href}
-                  className="flex items-center justify-between p-4 bg-emerald-50/50 rounded-2xl group cursor-pointer hover:bg-emerald-50 transition-colors"
+                  className="flex items-center justify-between p-3 sm:p-4 bg-emerald-50/50 rounded-2xl group cursor-pointer hover:bg-emerald-50 transition-colors"
                 >
-                  <span className="text-emerald-900 font-medium">{mode.countText}</span>
-                  <div className="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                  <span className="text-emerald-900 font-medium text-sm sm:text-base">{mode.countText}</span>
+                  <div className="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center text-white group-hover:scale-110 transition-transform flex-shrink-0">
                     <ArrowRight className="h-4 w-4" />
                   </div>
                 </Link>
@@ -152,33 +152,33 @@ const ReviewPage = () => {
         </div>
 
         {/* Review Schedule Placeholder */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="border-none shadow-sm bg-white">
-            <CardContent className="p-8 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <Card className="border-none shadow-sm bg-white overflow-hidden">
+            <CardContent className="p-4 sm:p-8 space-y-6">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <CalendarDays className="h-6 w-6 text-emerald-500" />
-                  <h2 className="text-2xl font-bold text-gray-900">Weekly Forecast</h2>
+                  <CalendarDays className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500" />
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Weekly Forecast</h2>
                 </div>
               </div>
 
-              <div className="flex items-end gap-2 h-40 mt-4">
+              <div className="flex items-end gap-1 sm:gap-2 h-32 sm:h-40 mt-4 overflow-x-auto pb-2">
                 {schedule.forecast.map((day: any, i: number) => {
                   const maxCount = Math.max(...schedule.forecast.map((d: any) => d.count), 1);
                   const heightPercent = Math.max((day.count / maxCount) * 100, 5); // Minimum 5% height
                   
                   return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                      <div className="text-xs font-bold text-gray-400 group-hover:text-emerald-600 transition-colors">
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1 sm:gap-2 group min-w-[36px]">
+                      <div className="text-[10px] sm:text-xs font-bold text-gray-400 group-hover:text-emerald-600 transition-colors">
                         {day.count}
                       </div>
-                      <div className="w-full relative bg-emerald-50 rounded-t-xl overflow-hidden" style={{ height: '100px' }}>
+                      <div className="w-full relative bg-emerald-50 rounded-t-lg sm:rounded-t-xl overflow-hidden h-20 sm:h-[100px]">
                         <div 
-                          className="absolute bottom-0 w-full bg-emerald-400 group-hover:bg-emerald-500 transition-all duration-300 rounded-t-xl" 
+                          className="absolute bottom-0 w-full bg-emerald-400 group-hover:bg-emerald-500 transition-all duration-300 rounded-t-lg sm:rounded-t-xl" 
                           style={{ height: `${heightPercent}%` }}
                         />
                       </div>
-                      <div className="text-xs font-medium text-gray-500">
+                      <div className="text-[10px] sm:text-xs font-medium text-gray-500 truncate w-full text-center">
                         {i === 0 ? "Today" : day.dayName}
                       </div>
                     </div>
@@ -186,24 +186,24 @@ const ReviewPage = () => {
                 })}
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-100">
-                <div className="bg-orange-50 rounded-2xl p-4 flex flex-col justify-center">
-                  <div className="text-sm font-bold text-orange-600/70 uppercase tracking-wider mb-1">Due Today</div>
-                  <div className="text-3xl font-black text-orange-600">{schedule.summary.dueToday}</div>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-100">
+                <div className="bg-orange-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col justify-center">
+                  <div className="text-[10px] sm:text-sm font-bold text-orange-600/70 uppercase tracking-wider mb-1">Due Today</div>
+                  <div className="text-2xl sm:text-3xl font-black text-orange-600">{schedule.summary.dueToday}</div>
                 </div>
-                <div className="bg-emerald-50 rounded-2xl p-4 flex flex-col justify-center">
-                  <div className="text-sm font-bold text-emerald-600/70 uppercase tracking-wider mb-1">Next 7 Days</div>
-                  <div className="text-3xl font-black text-emerald-600">{schedule.summary.upcomingSevenDays}</div>
+                <div className="bg-emerald-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col justify-center">
+                  <div className="text-[10px] sm:text-sm font-bold text-emerald-600/70 uppercase tracking-wider mb-1">Next 7 Days</div>
+                  <div className="text-2xl sm:text-3xl font-black text-emerald-600">{schedule.summary.upcomingSevenDays}</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-sm bg-white">
-            <CardContent className="p-8 space-y-6">
+          <Card className="border-none shadow-sm bg-white overflow-hidden">
+            <CardContent className="p-4 sm:p-8 space-y-4 sm:space-y-6">
               <div className="flex items-center gap-2 mb-2">
-                <BrainCircuit className="h-6 w-6 text-emerald-500" />
-                <h2 className="text-2xl font-bold text-gray-900">Learning Progress</h2>
+                <BrainCircuit className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500" />
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Learning Progress</h2>
               </div>
 
               <div className="space-y-6 mt-4">
