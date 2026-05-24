@@ -71,6 +71,14 @@ export const getVocabularyCount = async () => {
   return data.meta.total;
 };
 
+export const getReviewSchedule = async () => {
+  const response = await fetch("/api/vocabularies/schedule", { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error("Failed to fetch review schedule");
+  }
+  return response.json();
+};
+
 export const getQuizQuestions = async (mode?: string) => {
   const url = mode ? `/api/vocabularies/quiz?mode=${mode}` : "/api/vocabularies/quiz";
   const response = await fetch(url, { cache: "no-store" });

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from "react"; // Import useRef
+import { useState, useRef, useEffect } from "react"; // Import useRef
 import { useRouter, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import DashboardLayout from "@/common/components/DashboardLayout";
@@ -20,9 +20,12 @@ import { Button } from "@/components/ui/button";
 import { useGetDueVocabularies } from "@/features/vocabularies/hooks/useGetDueVocabularies";
 import { useGetRandomVocabularies } from "@/features/vocabularies/hooks/useGetRandomVocabularies";
 import { useReviewVocabulary } from "@/features/vocabularies/hooks/useReviewVocabulary";
+import { useSession } from "next-auth/react"; // Import useSession
+import { useQueryClient } from "@tanstack/react-query"; // Import useQueryClient
 import XpAnimation from "@/common/components/XpAnimation"; // Import XpAnimation
 
 const XP_AMOUNT_REVIEW_FLASHCARD = 2;
+const XP_SESSION_BONUS = 5;
 
 interface XpAnimationState {
   xp: number;
@@ -51,20 +54,32 @@ const FlashcardPageContent = () => {
   const rememberedButtonRef = useRef<HTMLButtonElement>(null); // Ref for remembered button
   const masteredButtonRef = useRef<HTMLButtonElement>(null); // Ref for mastered button
 
-  const { data: dueCardsData, isLoading: isDueLoading, error: isDueError } = useGetDueVocabularies();
-  const { data: randomCardsData, isLoading: isRandomLoading, error: isRandomError } = useGetRandomVocabularies(10);
+  const { data: dueCardsData, isLoading: isDueLoading, error: isDueError, refetch: refetchDue } = useGetDueVocabularies();
+  const { data: randomCardsData, isLoading: isRandomLoading, error: isRandomError, refetch: refetchRandom } = useGetRandomVocabularies(10);
   
   const isLoading = isRandomMode ? isRandomLoading : isDueLoading;
   const isError = isRandomMode ? isRandomError : isDueError;
   const cardsData = isRandomMode ? randomCardsData : dueCardsData;
 
   const { mutateAsync: review } = useReviewVocabulary();
+  const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
   };
 
-  const cards = cardsData?.data || [];
+  const [sessionCards, setSessionCards] = useState<any[]>([]);
+
+  // Lock the cards in for the session so that React Query invalidations 
+  // don't change the array while the user is iterating through it.
+  useEffect(() => {
+    if (cardsData?.data && cardsData.data.length > 0 && sessionCards.length === 0 && !isCompleted) {
+      setSessionCards(cardsData.data);
+    }
+  }, [cardsData?.data, sessionCards.length, isCompleted]);
+
+  const cards = sessionCards;
 
   const handleNext = () => {
     if (currentCardIndex < cards.length - 1) {
@@ -86,7 +101,7 @@ const FlashcardPageContent = () => {
     const currentCard = cards[currentCardIndex];
     if (currentCard) {
       try {
-        await review({ id: currentCard.id, data: { remembered, mastered } });
+        const res = await review({ id: currentCard.id, data: { remembered, mastered } });
         
         // Update stats
         setReviewStats(prev => ({
@@ -96,15 +111,30 @@ const FlashcardPageContent = () => {
         }));
 
         // Show XP animation
-        if (buttonRef?.current) {
+        if (buttonRef?.current && res.xpEarned > 0) {
           const rect = buttonRef.current.getBoundingClientRect();
-          handleXpEarned(XP_AMOUNT_REVIEW_FLASHCARD, rect);
+          handleXpEarned(res.xpEarned, rect);
         }
 
         if (currentCardIndex < cards.length - 1) {
           setCurrentCardIndex(prev => prev + 1);
         } else {
           setIsCompleted(true);
+          // Award session bonus if they remembered or mastered at least something
+          const newRemembered = reviewStats.remembered + (remembered && !mastered ? 1 : 0);
+          const newMastered = reviewStats.mastered + (mastered ? 1 : 0);
+          if ((newRemembered > 0 || newMastered > 0) && session?.user?.id) {
+            try {
+              await fetch(`/api/users/${session.user.id}/xp`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ xpAmount: XP_SESSION_BONUS }),
+              });
+              queryClient.invalidateQueries({ queryKey: ["userProfile", session.user.id] });
+            } catch (error) {
+              console.error("Error giving session bonus XP:", error);
+            }
+          }
         }
         setIsFlipped(false);
       } catch (err) {
@@ -161,7 +191,9 @@ const FlashcardPageContent = () => {
                 setIsCompleted(false);
                 setCurrentCardIndex(0);
                 setReviewStats({ remembered: 0, forgot: 0, mastered: 0 });
-                router.refresh();
+                setSessionCards([]);
+                if (isRandomMode) refetchRandom();
+                else refetchDue();
               }} 
               className="h-14 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-lg font-bold"
             >
@@ -190,7 +222,7 @@ const FlashcardPageContent = () => {
     );
   }
 
-  if (isError || cards.length === 0) {
+  if (isError || cardsData?.data?.length === 0) {
     return (
       <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
         <div className="flex flex-col h-[calc(100vh-120px)] items-center justify-center text-center p-6">
@@ -208,6 +240,17 @@ const FlashcardPageContent = () => {
           <Button onClick={() => router.push("/vocabularies/new")} className="bg-emerald-600 hover:bg-emerald-700">
             Add New Word
           </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Wait for useEffect to set sessionCards
+  if (cards.length === 0 && cardsData?.data?.length > 0) {
+    return (
+      <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
+        <div className="flex h-[calc(100vh-120px)] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
         </div>
       </DashboardLayout>
     );

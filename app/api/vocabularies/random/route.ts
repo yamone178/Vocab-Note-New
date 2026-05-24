@@ -27,7 +27,10 @@ export async function GET(req: Request) {
     // Get all IDs, shuffle them, take N, then fetch those records.
     // For simplicity and assuming modest scale:
     const allVocab = await db.vocabulary.findMany({
-      where: { userId },
+      where: { 
+        userId,
+        isMastered: false
+      },
       select: { id: true }
     });
 

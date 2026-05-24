@@ -21,10 +21,10 @@ import { useGetQuiz } from "@/features/vocabularies/hooks/useGetQuiz";
 import { useReviewVocabulary } from "@/features/vocabularies/hooks/useReviewVocabulary";
 import { useSession } from "next-auth/react"; // Import useSession
 import { useQueryClient } from "@tanstack/react-query"; // Import useQueryClient
-import { toast } from "sonner"; // Import toast
+import { toast } from "react-toastify"; // Import toast
 import XpAnimation from "@/common/components/XpAnimation"; // Import XpAnimation
 
-const XP_AMOUNT_COMPLETE_QUIZ = 10; // XP for completing a quiz
+const XP_SESSION_BONUS = 5; // XP for completing a quiz session
 
 interface XpAnimationState {
   xp: number;
@@ -68,26 +68,35 @@ const QuizPageContent = () => {
     });
   };
 
+  const checkAnswerButtonRef = useRef<HTMLButtonElement>(null); // Ref for check answer button
+
   const handleOptionSelect = (option: string) => {
     if (isAnswered) return;
     setSelectedOption(option);
   };
 
-  const handleSubmitAnswer = () => {
+  const handleSubmitAnswer = async () => {
     if (!selectedOption || isAnswered) return;
 
     const currentQuestion = questions[currentQuestionIndex];
     const isCorrect = selectedOption === currentQuestion.correctAnswer;
 
+    setIsAnswered(true);
+
     if (isCorrect) {
       setScore(prev => prev + 1);
+      // Update vocabulary as remembered and get XP
+      review({ id: currentQuestion.id, data: { remembered: true } }).then((res) => {
+        if (res?.xpEarned > 0 && checkAnswerButtonRef.current) {
+          const rect = checkAnswerButtonRef.current.getBoundingClientRect();
+          handleXpEarned(res.xpEarned, rect);
+        }
+      });
     } else {
       setIncorrectWords(prev => [...prev, currentQuestion.word]);
       // Flag incorrect word for review (FR6)
       review({ id: currentQuestion.id, data: { remembered: false } });
     }
-
-    setIsAnswered(true);
   };
 
   const handleNext = async () => {
@@ -96,32 +105,37 @@ const QuizPageContent = () => {
       setSelectedOption(null);
       setIsAnswered(false);
     } else {
-      setIsFinished(true);
-
       // Award XP for completing the quiz
       if (session?.user?.id && !hasXpBeenAwarded) { // Only award XP once
-        try {
-          await fetch(`/api/users/${session.user.id}/xp`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ xpAmount: XP_AMOUNT_COMPLETE_QUIZ }),
-          });
-          queryClient.invalidateQueries({ queryKey: ["userProfile", session.user.id] }); // Invalidate user profile to refetch XP
-          toast.success(`+${XP_AMOUNT_COMPLETE_QUIZ} XP!`);
-          setHasXpBeenAwarded(true); // Set flag to prevent duplicate XP
-          
-          // Show XP animation
+        setHasXpBeenAwarded(true); // Prevent duplicate XP calls
+        
+        // Let's also calculate if they deserve the bonus (at least 1 correct)
+        if (score > 0) {
           if (finishQuizButtonRef.current) {
             const rect = finishQuizButtonRef.current.getBoundingClientRect();
-            handleXpEarned(XP_AMOUNT_COMPLETE_QUIZ, rect);
+            handleXpEarned(XP_SESSION_BONUS, rect);
           }
-        } catch (error) {
-          console.error("Error updating XP:", error);
-          toast.error("Failed to update XP after quiz.");
+          
+          try {
+            await fetch(`/api/users/${session.user.id}/xp`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ xpAmount: XP_SESSION_BONUS }),
+            });
+            // Inform queryClient to update the header
+            queryClient.invalidateQueries({ queryKey: ["userProfile", session.user.id] });
+          } catch (error) {
+            console.error("Error updating XP:", error);
+          }
         }
       }
+      
+      // Delay showing results slightly to allow XP animation to start
+      setTimeout(() => {
+        setIsFinished(true);
+      }, 500);
     }
   };
 
@@ -329,6 +343,7 @@ const QuizPageContent = () => {
         <div className="flex justify-center">
           {!isAnswered ? (
             <Button
+              ref={checkAnswerButtonRef}
               onClick={handleSubmitAnswer}
               disabled={!selectedOption}
               className="h-16 px-12 rounded-3xl bg-gray-900 hover:bg-black text-white font-bold text-lg shadow-xl shadow-gray-200 disabled:opacity-50"
@@ -339,7 +354,6 @@ const QuizPageContent = () => {
             <Button
               ref={finishQuizButtonRef} // Attach ref to the button
               onClick={handleNext}
-              disabled={hasXpBeenAwarded || currentQuestionIndex === questions.length - 1} // Disable after XP awarded
               className="h-16 px-12 rounded-3xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-xl shadow-emerald-200 flex items-center gap-2"
             >
               {currentQuestionIndex === questions.length - 1 ? "Finish Quiz" : "Next Question"}

@@ -11,22 +11,36 @@ const proficiencyMap = {
 } as const;
 
 export async function signUpAction(data: any) {
-  const hashedPassword = await bcrypt.hash(data.password, 10);
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: { email: data.email }
+    });
 
-  const user = await prisma.user.create({
-    data: {
-      name: data.name,
-      email: data.email,
-      password: hashedPassword,
-      // proficiencyLevel: proficiencyMap[data.proficiency as keyof typeof proficiencyMap], // Temporarily commented out for debugging
-      categories: {
-        create: [
-          { name: "General" }
-        ]
-      }
-    },
-  });
+    if (existingUser) {
+      return { error: "User already exists with this email." };
+    }
 
-  revalidatePath("/");
-  return user;
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        password: hashedPassword,
+        proficiencyLevel: proficiencyMap[data.proficiency as keyof typeof proficiencyMap],
+        categories: {
+          create: [
+            { name: "General" }
+          ]
+        }
+      },
+    });
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Signup error:", error);
+    return { error: "An unexpected error occurred during signup." };
+  }
 }
+

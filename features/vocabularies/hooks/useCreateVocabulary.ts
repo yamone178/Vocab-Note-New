@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createVocabulary } from "../services/vocabulary-service";
 import { VocabularySchema } from "../schemas/vocabulary-schema";
-import { toast } from "sonner"; // Use sonner for toasts
+import { toast } from "react-toastify";
 import { useSession } from "next-auth/react"; // Import useSession
 
 const XP_AMOUNT_ADD_WORD = 5;
@@ -34,12 +34,14 @@ export const useCreateVocabulary = () => {
             body: JSON.stringify({ xpAmount: XP_AMOUNT_ADD_WORD }),
           });
           queryClient.invalidateQueries({ queryKey: ["userProfile", session.user.id] });
-          toast.success(`+${XP_AMOUNT_ADD_WORD} XP!`);
         } catch (error) {
           console.error("Error updating XP:", error);
           toast.error("Failed to update XP.");
         }
       }
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create vocabulary");
     },
   });
 };

@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, Zap, Target, CalendarDays, Award } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import { useGetUserProfile } from '@/features/users/hooks/useGetUserProfile';
 import { format } from "date-fns";
 import DashboardLayout from '@/common/components/DashboardLayout';

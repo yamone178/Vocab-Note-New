@@ -65,18 +65,35 @@ export async function POST(
       updateData.nextReview = nextReview;
     }
 
+    // Calculate XP earned to prevent farming
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lastReviewDate = vocabulary.lastReview ? new Date(vocabulary.lastReview) : new Date(0);
+    const wasReviewedToday = lastReviewDate >= today;
+
+    let xpEarned = 0;
+    if (!wasReviewedToday && !vocabulary.isMastered) {
+      if (mastered) {
+        xpEarned = 2;
+      } else if (remembered) {
+        xpEarned = 1;
+      }
+    }
+
     const [updatedVocabulary] = await db.$transaction([
       db.vocabulary.update({
         where: { id },
         data: updateData,
       }),
-      db.user.update({
-        where: { id: userId },
-        data: { xp: { increment: 2 } }, // Add XP for reviewing a flashcard
-      }),
+      ...(xpEarned > 0 ? [
+        db.user.update({
+          where: { id: userId },
+          data: { xp: { increment: xpEarned } },
+        })
+      ] : []),
     ]);
 
-    return NextResponse.json(updatedVocabulary);
+    return NextResponse.json({ ...updatedVocabulary, xpEarned });
   } catch (error) {
     console.error("Error updating review status:", error);
     return NextResponse.json(

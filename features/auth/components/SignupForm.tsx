@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { signupSchema } from "../schema/auth";
 import { User, Mail, Lock, Loader2, GraduationCap } from "lucide-react";
 import * as z from "zod";
+import { toast } from "react-toastify";
 
 export function SignupForm() {
   const router = useRouter();
@@ -30,11 +31,16 @@ export function SignupForm() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: signUpAction,
-    onSuccess: () => {
-      // Redirect to login page after successful signup
-      router.push("/auth/login?message=Account created successfully");
+    onSuccess: (data) => {
+      if (data?.error) {
+        toast.error(data.error);
+      } else {
+        // Redirect to login page after successful signup
+        router.push("/auth/login?message=Account created successfully");
+      }
     },
     onError: (error) => {
+      toast.error("An unexpected error occurred.");
       console.error("Signup failed", error);
     }
   });

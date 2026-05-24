@@ -39,15 +39,30 @@ export async function GET(req: Request) {
         return NextResponse.json({ data: [] });
       }
     } else {
-      // Default: Fetch all vocabularies
+      // Default: Fetch random vocabularies that are not mastered
       allVocab = await db.vocabulary.findMany({
-        where: { userId },
+        where: { 
+          userId,
+          isMastered: false
+        },
         select: {
           id: true,
           word: true,
           definition: true,
         },
       });
+      
+      // If there are less than 4 eligible words, fetch from all words
+      if (allVocab.length < 4) {
+        allVocab = await db.vocabulary.findMany({
+          where: { userId },
+          select: {
+            id: true,
+            word: true,
+            definition: true,
+          },
+        });
+      }
     }
 
     if (allVocab.length < 4) {

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateVocabulary } from "../services/vocabulary-service";
 import { VocabularySchema } from "../schemas/vocabulary-schema";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 interface UpdateVocabularyVariables extends VocabularySchema {
   id: string;
@@ -19,6 +19,9 @@ export const useUpdateVocabulary = () => {
       await queryClient.invalidateQueries({ queryKey: ["vocabulary", variables.id] });
       await queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast.success("Vocabulary updated successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update vocabulary");
     },
   });
 };

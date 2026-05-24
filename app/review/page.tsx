@@ -10,15 +10,22 @@ import {
   BookOpen, 
   ArrowRight, 
   Zap,
-  Loader2
+  Loader2,
+  CalendarDays,
+  BarChart,
+  BrainCircuit,
+  Calendar
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { useGetDueVocabularies } from "@/features/vocabularies/hooks/useGetDueVocabularies";
+import { useGetReviewSchedule } from "@/features/vocabularies/hooks/useGetReviewSchedule";
 
 const ReviewPage = () => {
   const [activeTab, setActiveTab] = useState('review');
   const { data, isLoading } = useGetDueVocabularies();
+  const { data: scheduleData, isLoading: isScheduleLoading } = useGetReviewSchedule();
+  
   const cards = data?.data || [];
   const completedThisWeek = data?.completedThisWeek || 0;
 
@@ -70,7 +77,7 @@ const ReviewPage = () => {
     }
   ];
 
-  if (isLoading) {
+  if (isLoading || isScheduleLoading) {
     return (
       <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
         <div className="flex h-[calc(100vh-120px)] items-center justify-center">
@@ -79,6 +86,12 @@ const ReviewPage = () => {
       </DashboardLayout>
     );
   }
+
+  const schedule = scheduleData || {
+    summary: { dueToday: 0, upcomingSevenDays: 0, mastered: 0 },
+    forecast: [],
+    breakdown: { learning: 0, reviewing: 0, mastered: 0 }
+  };
 
   return (
     <DashboardLayout
@@ -139,26 +152,109 @@ const ReviewPage = () => {
         </div>
 
         {/* Review Schedule Placeholder */}
-        <Card className="border-none shadow-sm bg-white">
-          <CardContent className="p-8 space-y-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Zap className="h-6 w-6 text-emerald-500" />
-              <h2 className="text-2xl font-bold text-gray-900">Review Schedule</h2>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="border-none shadow-sm bg-white">
+            <CardContent className="p-8 space-y-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="h-6 w-6 text-emerald-500" />
+                  <h2 className="text-2xl font-bold text-gray-900">Weekly Forecast</h2>
+                </div>
+              </div>
 
-            <div className="space-y-4">
-              {cards.length > 0 ? (
-                <div className="p-5 rounded-3xl border border-emerald-200 bg-emerald-50/20">
-                    <p className="text-emerald-800 font-medium">You have {cards.length} words due for review today.</p>
+              <div className="flex items-end gap-2 h-40 mt-4">
+                {schedule.forecast.map((day: any, i: number) => {
+                  const maxCount = Math.max(...schedule.forecast.map((d: any) => d.count), 1);
+                  const heightPercent = Math.max((day.count / maxCount) * 100, 5); // Minimum 5% height
+                  
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                      <div className="text-xs font-bold text-gray-400 group-hover:text-emerald-600 transition-colors">
+                        {day.count}
+                      </div>
+                      <div className="w-full relative bg-emerald-50 rounded-t-xl overflow-hidden" style={{ height: '100px' }}>
+                        <div 
+                          className="absolute bottom-0 w-full bg-emerald-400 group-hover:bg-emerald-500 transition-all duration-300 rounded-t-xl" 
+                          style={{ height: `${heightPercent}%` }}
+                        />
+                      </div>
+                      <div className="text-xs font-medium text-gray-500">
+                        {i === 0 ? "Today" : day.dayName}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-100">
+                <div className="bg-orange-50 rounded-2xl p-4 flex flex-col justify-center">
+                  <div className="text-sm font-bold text-orange-600/70 uppercase tracking-wider mb-1">Due Today</div>
+                  <div className="text-3xl font-black text-orange-600">{schedule.summary.dueToday}</div>
                 </div>
-              ) : (
-                <div className="p-5 rounded-3xl border border-gray-100 bg-gray-50/50">
-                    <p className="text-gray-500">No reviews scheduled for today.</p>
+                <div className="bg-emerald-50 rounded-2xl p-4 flex flex-col justify-center">
+                  <div className="text-sm font-bold text-emerald-600/70 uppercase tracking-wider mb-1">Next 7 Days</div>
+                  <div className="text-3xl font-black text-emerald-600">{schedule.summary.upcomingSevenDays}</div>
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-white">
+            <CardContent className="p-8 space-y-6">
+              <div className="flex items-center gap-2 mb-2">
+                <BrainCircuit className="h-6 w-6 text-emerald-500" />
+                <h2 className="text-2xl font-bold text-gray-900">Learning Progress</h2>
+              </div>
+
+              <div className="space-y-6 mt-4">
+                {/* Learning */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-end">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500" />
+                      <span className="font-bold text-gray-700">Learning</span>
+                    </div>
+                    <span className="font-black text-gray-900">{schedule.breakdown.learning}</span>
+                  </div>
+                  <div className="h-3 w-full bg-blue-50 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500" style={{ width: '100%' }} />
+                  </div>
+                  <p className="text-xs text-gray-500 font-medium">New words that need focus</p>
+                </div>
+
+                {/* Reviewing */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-end">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-orange-500" />
+                      <span className="font-bold text-gray-700">Reviewing</span>
+                    </div>
+                    <span className="font-black text-gray-900">{schedule.breakdown.reviewing}</span>
+                  </div>
+                  <div className="h-3 w-full bg-orange-50 rounded-full overflow-hidden">
+                    <div className="h-full bg-orange-500" style={{ width: '100%' }} />
+                  </div>
+                  <p className="text-xs text-gray-500 font-medium">Getting familiar, keep practicing</p>
+                </div>
+
+                {/* Mastered */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-end">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                      <span className="font-bold text-gray-700">Mastered</span>
+                    </div>
+                    <span className="font-black text-gray-900">{schedule.breakdown.mastered}</span>
+                  </div>
+                  <div className="h-3 w-full bg-emerald-50 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500" style={{ width: '100%' }} />
+                  </div>
+                  <p className="text-xs text-gray-500 font-medium">Strong memory, review occasionally</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,44 +6,36 @@ datasource db {
   provider = "postgresql"
 }
 
-enum ProficiencyLevel {
-  BEGINNER
-  PREINTERMEDIATE
-  INTERMEDIATE
-  UPPERINTERMEDIATE
-  ADVANCED
-}
-
 model User {
   id                       String            @id @default(cuid())
   name                     String?
   email                    String            @unique
-  image                    String? // Add image field
+  createdAt                DateTime          @default(now()) @map("created_at")
+  updatedAt                DateTime          @updatedAt @map("updated_at")
   password                 String
-  proficiencyLevel         ProficiencyLevel  @default(BEGINNER) @map(name: "proficiency_level")
+  proficiencyLevel         ProficiencyLevel  @default(BEGINNER) @map("proficiency_level")
+  currentDailyWordsLearned Int               @default(0) @map("current_daily_words_learned")
+  dailyGoal                Int               @default(5) @map("daily_goal")
+  image                    String?
   xp                       Int               @default(0)
-  dailyGoal                Int               @default(5) @map(name: "daily_goal") // Add dailyGoal field
-  currentDailyWordsLearned Int               @default(0) @map(name: "current_daily_words_learned") // Add currentDailyWordsLearned field
-  createdAt                DateTime          @default(now()) @map(name: "created_at")
-  updatedAt                DateTime          @updatedAt @map(name: "updated_at")
   categories               Category[]
-  vocabularies             Vocabulary[]
   interactions             UserInteraction[]
+  vocabularies             Vocabulary[]
 
-  @@map(name: "users")
+  @@map("users")
 }
 
 model Category {
   id           String       @id @default(cuid())
   name         String
   description  String?
-  createdAt    DateTime     @default(now()) @map(name: "created_at")
-  updatedAt    DateTime     @updatedAt @map(name: "updated_at")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
   userId       String       @map("userId")
   user         User         @relation(fields: [userId], references: [id])
   vocabularies Vocabulary[]
 
-  @@map(name: "categories")
+  @@map("categories")
 }
 
 model Vocabulary {
@@ -57,35 +43,43 @@ model Vocabulary {
   word         String
   partOfSpeech String
   definition   String
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  categoryId   String    @map("categoryId")
+  userId       String    @map("userId")
+  antonyms     String[]
   example      String?
   synonyms     String[]
-  antonyms     String[]
   difficulty   String    @default("BEGINNER")
-  createdAt    DateTime  @default(now()) @map(name: "created_at")
-  updatedAt    DateTime  @updatedAt @map(name: "updated_at")
-  categoryId   String    @map("categoryId")
-  category     Category  @relation(fields: [categoryId], references: [id])
-  userId       String    @map("userId")
-  user         User      @relation(fields: [userId], references: [id])
   knowIt       Boolean   @default(false) @map("know_it")
-  lastReview   DateTime? @map(name: "last_review")
-  nextReview   DateTime? @map(name: "next_review")
   interval     Int       @default(0)
   isMastered   Boolean   @default(false) @map("is_mastered")
+  lastReview   DateTime? @map("last_review")
+  nextReview   DateTime? @map("next_review")
+  category     Category  @relation(fields: [categoryId], references: [id])
+  user         User      @relation(fields: [userId], references: [id])
 
-  @@map(name: "vocabularies")
+  @@map("vocabularies")
 }
 
 model UserInteraction {
   id              String   @id @default(cuid())
   userId          String   @map("user_id")
-  user            User     @relation(fields: [userId], references: [id])
-  vocabularyWord  String   @map("vocabulary_word") // The distinct word interacted with
-  interactionType String   @map("interaction_type") // e.g., "VIEW", "SAVE", "MASTERED"
+  vocabularyWord  String   @map("vocabulary_word")
+  interactionType String   @map("interaction_type")
   weight          Float    @default(1.0)
-  createdAt       DateTime @default(now()) @map(name: "created_at")
-  updatedAt       DateTime @updatedAt @map(name: "updated_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  user            User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, vocabularyWord, interactionType])
-  @@map(name: "user_interactions")
+  @@map("user_interactions")
+}
+
+enum ProficiencyLevel {
+  BEGINNER
+  PREINTERMEDIATE
+  INTERMEDIATE
+  UPPERINTERMEDIATE
+  ADVANCED
 }
