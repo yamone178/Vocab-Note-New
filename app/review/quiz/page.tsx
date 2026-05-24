@@ -49,7 +49,7 @@ const QuizPageContent = () => {
   const finishQuizButtonRef = useRef<HTMLButtonElement>(null); // Ref for the finish quiz button
 
   const { data, isLoading, isError, error, refetch } = useGetQuiz(mode);
-  const { mutate: review } = useReviewVocabulary();
+  const { mutateAsync: review } = useReviewVocabulary();
   const { data: session } = useSession(); // Get session to access user ID
   const queryClient = useQueryClient(); // Get query client to invalidate queries
 

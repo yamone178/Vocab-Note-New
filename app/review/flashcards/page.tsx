@@ -267,20 +267,20 @@ const FlashcardPageContent = () => {
     >
       <div className="relative max-w-5xl mx-auto h-[calc(100vh-120px)] flex flex-col p-4 md:p-6"> {/* Added relative for animation */}
         {/* Progress Bar Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4 sm:mb-8 gap-4">
           <div className="flex-1 max-w-md">
-            <div className="flex justify-between text-sm font-bold text-gray-900 mb-2">
+            <div className="flex justify-between text-xs sm:text-sm font-bold text-gray-900 mb-1 sm:mb-2">
               <span>Card {currentCardIndex + 1} of {cards.length}</span>
             </div>
-            <div className="h-2 w-full bg-emerald-50 rounded-full overflow-hidden">
+            <div className="h-1.5 sm:h-2 w-full bg-emerald-50 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-emerald-500 transition-all duration-300" 
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
-          <div className="text-sm font-bold text-gray-400">
-            {Math.round(progressPercent)}% Complete
+          <div className="text-xs sm:text-sm font-bold text-gray-400">
+            {Math.round(progressPercent)}%
           </div>
         </div>
 
@@ -288,52 +288,54 @@ const FlashcardPageContent = () => {
         <div className="flex-1 flex flex-col items-center justify-center relative perspective-1000">
           <div 
             onClick={() => setIsFlipped(!isFlipped)}
-            className={`w-full max-w-3xl aspect-[1.6/1] cursor-pointer transition-all duration-500 preserve-3d relative ${isFlipped ? "rotate-y-180" : ""}`}
+            className={`w-full max-w-3xl aspect-square sm:aspect-[1.6/1] cursor-pointer transition-all duration-500 preserve-3d relative ${isFlipped ? "rotate-y-180" : ""}`}
           >
             {/* Front of Card */}
-            <div className="absolute inset-0 backface-hidden bg-white rounded-[40px] shadow-sm border border-emerald-50 flex flex-col items-center justify-center p-12 text-center overflow-hidden">
+            <div className="absolute inset-0 backface-hidden bg-white rounded-[24px] sm:rounded-[40px] shadow-sm border border-emerald-50 flex flex-col items-center justify-center p-6 sm:p-12 text-center overflow-hidden">
                {/* Decorative Background Gradient */}
                <div className="absolute inset-0 bg-gradient-to-br from-white via-white to-emerald-50/30 -z-10" />
                
-               <div className="flex items-center gap-2 text-emerald-600 font-bold mb-8">
+               <div className="flex items-center gap-2 text-emerald-600 font-bold mb-4 sm:mb-8">
                  <Sparkles className="h-4 w-4" />
                  <span>{currentCard.category?.name || "Vocabulary"}</span>
                </div>
                
-               <h2 className="text-4xl sm:text-6xl md:text-7xl font-black text-emerald-900 mb-6 sm:mb-8 tracking-tight break-all">
+               <h2 className="text-4xl sm:text-6xl md:text-7xl font-black text-emerald-900 mb-4 sm:mb-8 tracking-tight break-all">
                  {currentCard.word}
                </h2>
                
-               <div className="px-4 sm:px-6 py-2 bg-emerald-50 text-emerald-600 rounded-full font-bold mb-8 sm:mb-12 text-sm sm:text-base">
+               <div className="px-4 sm:px-6 py-2 bg-emerald-50 text-emerald-600 rounded-full font-bold mb-6 sm:mb-12 text-sm sm:text-base">
                  {currentCard.partOfSpeech}
                </div>
                
-               <div className="flex items-center gap-2 text-gray-400 font-medium">
+               <div className="flex items-center gap-2 text-gray-400 font-medium mt-auto sm:mt-0">
                  <RotateCw className="h-4 w-4" />
-                 <span>Click to reveal definition</span>
+                 <span>Tap to flip</span>
                </div>
             </div>
 
             {/* Back of Card */}
-            <div className="absolute inset-0 backface-hidden rotate-y-180 bg-white rounded-[40px] shadow-sm border border-emerald-50 flex flex-col items-center justify-center p-12 text-center">
-               <div className="flex items-center gap-2 text-emerald-600 font-bold mb-6">
+            <div className="absolute inset-0 backface-hidden rotate-y-180 bg-white rounded-[24px] sm:rounded-[40px] shadow-sm border border-emerald-50 flex flex-col items-center justify-center p-6 sm:p-12 text-center">
+               <div className="flex items-center gap-2 text-emerald-600 font-bold mb-4 sm:mb-6">
                  <Sparkles className="h-4 w-4" />
                  <span>Definition</span>
                </div>
                
-               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 leading-tight max-w-2xl px-4">
-                 {currentCard.definition}
-               </p>
+               <div className="flex-1 flex flex-col justify-center items-center w-full overflow-y-auto">
+                 <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 leading-tight max-w-2xl px-2 sm:px-4">
+                   {currentCard.definition}
+                 </p>
 
-               {currentCard.example && (
-                 <div className="mt-4 sm:mt-6 p-4 bg-emerald-50 rounded-2xl italic text-emerald-700 text-sm sm:text-base mx-4">
-                    "{currentCard.example}"
-                 </div>
-               )}
+                 {currentCard.example && (
+                   <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-emerald-50 rounded-2xl italic text-emerald-700 text-xs sm:text-base mx-2 sm:mx-4">
+                      "{currentCard.example}"
+                   </div>
+                 )}
+               </div>
                
-               <div className="mt-8 flex items-center gap-2 text-gray-400 font-medium">
+               <div className="mt-4 sm:mt-8 flex items-center gap-2 text-gray-400 font-medium">
                  <RotateCw className="h-4 w-4" />
-                 <span>Click to see word</span>
+                 <span>Tap to flip back</span>
                </div>
             </div>
           </div>
@@ -409,7 +411,7 @@ const FlashcardPageContent = () => {
         {/* Floating Help Button */}
         <button className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 h-12 w-12 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-lg z-10">
           <HelpCircle className="h-6 w-6" />
-        </button>>
+        </button>
       </div>
 
       <style jsx global>{`
