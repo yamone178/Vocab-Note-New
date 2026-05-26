@@ -35,8 +35,8 @@ export function SignupForm() {
       if (data?.error) {
         toast.error(data.error);
       } else {
-        // Redirect to login page after successful signup
-        router.push("/auth/login?message=Account created successfully");
+        toast.success("Account created successfully");
+        router.push("/auth/login");
       }
     },
     onError: (error) => {
