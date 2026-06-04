@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 import { Vocabulary } from "../types";
 import { useDeleteVocabulary } from "../hooks/useDeleteVocabulary";
 import ConfirmationModal from "@/common/components/ConfirmationModal";
-import {
+import { 
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { 
   Volume2, 
   Calendar, 
@@ -57,6 +60,11 @@ const VocabularyDetailModal = ({
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px] bg-white p-0 overflow-hidden border-emerald-100">
+        <DialogHeader>
+          <VisuallyHidden>
+            <DialogTitle>Vocabulary Detail</DialogTitle>
+          </VisuallyHidden>
+        </DialogHeader>
         <div className="bg-emerald-600 p-6 text-white">
           <div className="flex justify-between items-start">
             <div>
