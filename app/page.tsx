@@ -58,6 +58,15 @@ export default function Home() {
       </div>
 
       <DailySuggestions selectedWord={selectedWord} setSelectedWord={setSelectedWord} />
+
+      {/* Footer for Navigation Links */}
+      <footer className="mt-8 p-4 text-center text-gray-600">
+        <p>© {new Date().getFullYear()} Your Vocabulary App. All rights reserved.</p>
+        <nav className="mt-2">
+          <a href="/privacy" className="mx-2 hover:underline">Privacy Policy</a>
+          <a href="/policy" className="mx-2 hover:underline">Terms of Service</a>
+        </nav>
+      </footer>
     </DashboardLayout>
   );
 }

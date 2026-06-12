@@ -6,7 +6,8 @@
     "dev": "NEXT_DISABLE_TURBOPACK=1 next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+     "lint": "eslint",
+    "migrate:reset": "prisma migrate reset --force"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

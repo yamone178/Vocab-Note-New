@@ -252,8 +252,8 @@ export default function LandingPage() {
           </p>
           <div className="flex gap-4">
              {/* Placeholder for legal links */}
-            <Link href="#" className="text-sm text-slate-500 hover:text-emerald-600 transition-colors">Privacy</Link>
-            <Link href="#" className="text-sm text-slate-500 hover:text-emerald-600 transition-colors">Terms</Link>
+            <Link href="/privacy" className="text-sm text-slate-500 hover:text-emerald-600 transition-colors">Privacy</Link>
+            <Link href="/policy" className="text-sm text-slate-500 hover:text-emerald-600 transition-colors">Terms</Link>
           </div>
         </div>
       </footer>
