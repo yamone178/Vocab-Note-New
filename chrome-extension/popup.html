@@ -145,11 +145,11 @@
 
     /* Extension logo ပုံစံ visual အဝိုင်းလေး */
     .auth-icon-wrapper {
-      width: 48px;
-      height: 48px;
-      background-color: rgba(16, 185, 129, 0.1);
+      width: 50px;
+      height: 50px;
+      background-color: rgb(16, 185, 129);
       color: var(--primary);
-      border-radius: 50%;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -170,10 +170,13 @@
       display: none;
     }
   </style>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
 </head>
 <body>
   <div id="mainContainer" class="container">
     <div class="header">
+      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open h-5 w-5 text-white" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg></div>
       <h2>Quick Save Vocab</h2>
       <button id="logoutBtn" class="logout-btn">Logout</button>
     </div>
@@ -194,16 +197,17 @@
         <option value="">Default (General)</option>
       </select>
     </div>
-    
-    <button id="saveBtn">Save to VocabNote</button>
+    <div>
+    <button id="saveBtn" style="display: block; width: 100%; margin-bottom: 20px;">Save to VocabNote</button>
     <div id="status" class="status"></div>
-  </div>
+    <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 6px;">Review and practice your notes on <a href="https://vocab-note.netlify.app" target="_blank" style="color: var(--primary); font-weight: 500; text-decoration: none;">VocabNote</a></p>
+
+    </div>
+    </div>
 
   <div id="authContainer" class="container">
     <div class="auth-banner">
-      <div class="auth-icon-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-marked"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><polyline points="10 2 10 10 15 7 20 10 20 2"/></svg>
-      </div>
+      <div class="auth-icon-wrapper"><div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-lg shadow-emerald-300"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg></div></div>
       <h2>Welcome to VocabNote</h2>
       <p>Please sign in to sync and save your new words instantly.</p>
     </div>
@@ -213,23 +217,24 @@
       <input type="email" id="authEmail" placeholder="name@example.com">
     </div>
     
-    <div class="field">
+    <div class="field" >
       <label for="authPassword">Password</label>
       <input type="password" id="authPassword" placeholder="Enter your password">
     </div>
-    
-    <button id="loginBtn" style="margin-top: 4px;">Sign In</button>
+   <div>
+    <button id="loginBtn" style="margin-top: 4px; margin-bottom: 10px; display: block; width: 100%;">Sign In</button>
     <div id="authStatus" class="status"></div>
-    <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 16px;">
+       <p style="text-align: center; font-size: 12px; color: var(--text-muted);">
       No account yet? <a href="#" id="showSignup" style="color: var(--primary); font-weight: 500; text-decoration: none;">Create one</a>
     </p>
-  </div>
+    <p style="text-align: center; margin-top: 5px; font-size: 12px; color: var(--text-muted);">Review and practice your notes on <a href="https://vocab-note.netlify.app" target="_blank" style="color: var(--primary); font-weight: 500; text-decoration: none;">VocabNote</a></p>
+ 
+    </div>
+    </div>
 
   <div id="signupContainer" class="container" style="display: none;">
     <div class="auth-banner">
-       <div class="auth-icon-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-marked"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><polyline points="10 2 10 10 15 7 20 10 20 2"/></svg>
-      </div>
+       <div class="auth-icon-wrapper"><div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-lg shadow-emerald-300"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg></div></div>
       <h2>Create Your Account</h2>
       <p>Join VocabNote to start building your personal dictionary.</p>
     </div>
@@ -258,12 +263,15 @@
       </select>
     </div>
     
-    <button id="signupBtn" style="margin-top: 4px;">Sign Up</button>
+    <div>
+      <button id="signupBtn" style="display: block; width: 100%; margin-bottom: 10px;">Sign Up</button>
     <div id="signupStatus" class="status"></div>
-    <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 16px;">
+    <p style="text-align: center; font-size: 12px; color: var(--text-muted);">
       Already have an account? <a href="#" id="showLogin" style="color: var(--primary); font-weight: 500; text-decoration: none;">Sign In</a>
     </p>
-  </div>
+    <p style="text-align: center; font-size: 12px; color: var(--text-muted);">Review and practice your notes on <a href="https://vocab-note.netlify.app" target="_blank" style="color: var(--primary); font-weight: 500; text-decoration: none;">VocabNote</a></p>
+
+    </div>  </div>
 
   <script src="popup.js"></script>
 </body>
