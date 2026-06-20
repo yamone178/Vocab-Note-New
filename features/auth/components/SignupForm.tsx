@@ -3,7 +3,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { signUpAction } from "@/app/actions/auth";
+// Removed: import { signUpAction } from "@/app/actions/auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -29,25 +29,42 @@ export function SignupForm() {
     }
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: signUpAction,
-    onSuccess: (data) => {
-      if (data?.error) {
-        toast.error(data.error);
-      } else {
-        toast.success("Account created successfully");
-        router.push("/auth/login");
+  const signupMutation = useMutation({
+    mutationFn: async (values: z.infer<typeof signupSchema>) => {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        // Try to extract specific error message, fallback to generic
+        const errorMessage = errorData?.message || errorData?.errors?.root?.message || "An unexpected error occurred.";
+        throw new Error(errorMessage);
       }
+      return response.json(); // Assuming the API returns JSON
+    },
+    onSuccess: (data) => {
+      // The API returns a message and userId on success
+      toast.success(data?.message || "Account created successfully");
+      router.push("/auth/login");
     },
     onError: (error) => {
-      toast.error("An unexpected error occurred.");
+      // Handle errors thrown by mutationFn
+      toast.error(error.message || "An unexpected error occurred.");
       console.error("Signup failed", error);
     }
   });
 
+  const isPending = signupMutation.isPending;
+  const formErrors = form.formState.errors;
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((values) => mutate(values))} className="space-y-5">
+      <form onSubmit={form.handleSubmit((values) => signupMutation.mutate(values))} className="space-y-5">
         {/* Full Name */}
         <FormField 
           control={form.control} 
@@ -138,7 +155,7 @@ export function SignupForm() {
             </FormItem>
           )} 
         />
-
+        
         {/* Proficiency Level */}
         <FormField 
           control={form.control} 
@@ -176,10 +193,10 @@ export function SignupForm() {
             </FormItem>
           )} 
         />
-
+        
         <Button 
           type="submit" 
-          disabled={isPending} 
+          disabled={isPending}
           className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold py-6 rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl transition-all duration-200"
         >
           {isPending ? (

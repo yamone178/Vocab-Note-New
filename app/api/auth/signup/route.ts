@@ -61,7 +61,8 @@ export async function POST(req: Request) {
         name,
         email,
         password: hashedPassword,
-        proficiencyLevel: proficiency,
+        // Convert proficiency to uppercase to match typical Prisma enum casing
+        proficiencyLevel: proficiency.toUpperCase() as any, // Type assertion needed as Prisma expects specific enum type
         xp: 0, // Default experience points
       },
     });
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
       NextResponse.json({ message: "User created successfully", userId: newUser.id }, { status: 201 })
     );
   } catch (error) {
-    console.error("Signup API error:", error);
+    console.error("Signup API error:", error); // Log the actual error object
     // Handle potential server errors (e.g., database errors)
     return corsResponse(
       req,

@@ -1,7 +1,13 @@
 // Extension requests need HTTPS for SameSite=None cookies.
+// const API_BASE_URL = 'https://vocab-note.netlify.app/api';
+// const EXTENSION_LOGIN_URL = `${API_BASE_URL}/auth/extension`;
+// const EXTENSION_SIGNUP_URL = `${API_BASE_URL}/users`;
+
+// Use the full absolute URL for the local development server
+// const API_BASE_URL = 'http://localhost:3000/api';
 const API_BASE_URL = 'https://vocab-note.netlify.app/api';
 const EXTENSION_LOGIN_URL = `${API_BASE_URL}/auth/extension`;
-const EXTENSION_SIGNUP_URL = `${API_BASE_URL}/users`;
+const EXTENSION_SIGNUP_URL = `${API_BASE_URL}/auth/signup`; // Corrected signup URL
 
 document.addEventListener('DOMContentLoaded', async () => {
   const mainContainer = document.getElementById('mainContainer');
@@ -23,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const signupProficiency = document.getElementById('signupProficiency');
   const signupStatus = document.getElementById('signupStatus');
   const showLogin = document.getElementById('showLogin');
-
+  
   // Main view elements
   const wordInput = document.getElementById('word');
   const categorySelect = document.getElementById('category');
@@ -32,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const statusDiv = document.getElementById('status');
   const logoutBtn = document.getElementById('logoutBtn');
   const definitionTextarea = document.getElementById('definition');
-
+  
   let sourceUrl = '';
   let authToken = '';
 
@@ -51,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const showAuth = (message) => {
     mainContainer.style.display = 'none';
     signupContainer.style.display = 'none';
-    authContainer.style.display = 'block';
+    authContainer.style.display = 'flex'; // Use flex to show it
     if (message) {
       authStatus.textContent = message;
       authStatus.className = 'status error';
@@ -63,14 +69,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const showSignupView = () => {
     authContainer.style.display = 'none';
-    signupContainer.style.display = 'block';
+    signupContainer.style.display = 'flex'; // Use flex to show it
     signupStatus.textContent = '';
     signupStatus.className = 'status';
   };
 
   const showLoginView = () => {
     signupContainer.style.display = 'none';
-    authContainer.style.display = 'block';
+    authContainer.style.display = 'flex'; // Use flex to show it
     authStatus.textContent = '';
     authStatus.className = 'status';
   };
@@ -112,10 +118,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Also try to get current selection if opened manually
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab) {
-    sourceUrl = tab.url;
-    try {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab) {
+      sourceUrl = tab.url;
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: () => window.getSelection().toString().trim(),
@@ -128,9 +134,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           wordInput.value = results[0].result;
         }
       });
-    } catch (e) {
-      console.warn("Error getting selection:", e);
     }
+  } catch (e) {
+    console.warn("Error getting selection:", e);
   }
 
   const loadCategories = async () => {
@@ -199,8 +205,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        authStatus.textContent = errorData.message || 'Invalid credentials.';
+        let errorMsg = 'Invalid credentials.';
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.message) {
+            errorMsg = errorData.message;
+          } else if (typeof errorData === 'string') {
+            errorMsg = errorData;
+          } else {
+            console.error("Unexpected error response format for login:", errorData);
+          }
+        } catch (jsonError) {
+          console.error("Failed to parse error response JSON for login:", jsonError);
+          errorMsg = 'Login failed: Invalid server response.';
+        }
+        authStatus.textContent = errorMsg;
         authStatus.className = 'status error';
         loginBtn.disabled = false;
         return;
@@ -223,6 +242,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       loginBtn.disabled = false;
       loadCategories();
     } catch (error) {
+      console.error('Login Fetch Error:', error);
       authStatus.textContent = 'Could not connect to the server.';
       authStatus.className = 'status error';
       loginBtn.disabled = false;
@@ -246,29 +266,65 @@ document.addEventListener('DOMContentLoaded', async () => {
     signupStatus.className = 'status';
 
     try {
+      console.log('Attempting signup with:', { name, email, password, proficiency }); // Log data being sent
       const response = await fetch(EXTENSION_SIGNUP_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, proficiency }),
+        // Pass confirmPassword as well, using the same password value for simplicity
+        body: JSON.stringify({ name, email, password, confirmPassword: password, proficiency }),
       });
 
+      console.log('Signup response received:', response.status, response.statusText);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        signupStatus.textContent = errorData.message || 'Could not create account.';
+        let errorMsg = 'Could not create account.'; // Default error message
+        try {
+          const errorData = await response.json();
+          console.log('Signup error response data:', errorData);
+          // Try to extract specific error message, fallback to generic
+          if (errorData && errorData.message) {
+              errorMsg = errorData.message;
+          } else if (errorData && errorData.errors && errorData.errors.root && errorData.errors.root.message) {
+              errorMsg = errorData.errors.root.message;
+          } else if (typeof errorData === 'string') { // Sometimes error is just a string
+              errorMsg = errorData;
+          } else {
+              // If response is not JSON or has an unexpected structure
+              console.error("Unexpected error response format during signup:", errorData);
+          }
+        } catch (jsonError) {
+          // If response.json() fails, use a generic message
+          console.error("Failed to parse error response JSON during signup:", jsonError);
+          errorMsg = 'Signup failed: Invalid server response.';
+        }
+        
+        signupStatus.textContent = errorMsg;
         signupStatus.className = 'status error';
-        signupBtn.disabled = false;
+        signupBtn.disabled = false; // Re-enable button on error
+        console.log('Signup button re-enabled after error.');
         return;
       }
+
+      const result = await response.json();
+      console.log('Signup successful response:', result);
+      signupStatus.textContent = result?.message || 'Account created! Now logging in...';
+      signupStatus.className = 'status success';
 
       // After successful signup, try to log in automatically
       authEmail.value = email;
       authPassword.value = password;
-      await loginBtn.click();
+      
+      // A small delay to show success message before logging in
+      setTimeout(() => {
+        loginBtn.click();
+      }, 1000);
 
     } catch (error) {
+      console.error('Signup Fetch Error:', error);
       signupStatus.textContent = 'Could not connect to the server.';
       signupStatus.className = 'status error';
-      signupBtn.disabled = false;
+      signupBtn.disabled = false; // Re-enable button on catch error
+      console.log('Signup button re-enabled after fetch error.');
     }
   });
 
@@ -324,10 +380,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveBtn.disabled = false;
       }
     } catch (error) {
+      console.error('Save Fetch Error:', error);
       statusDiv.textContent = 'Error: Could not connect to the server.';
       statusDiv.className = 'status error';
       saveBtn.disabled = false;
     }
   });
 });
-
