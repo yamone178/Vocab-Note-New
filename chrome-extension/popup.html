@@ -2,94 +2,172 @@
 <html>
 <head>
   <style>
-    body {
-      width: 300px;
-      padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    :root {
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-disabled: #6ee7b7;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --bg-input: #f9fafb;
+      --border-color: #e5e7eb;
+      --radius: 10px;
     }
+
+    body {
+      width: 320px;
+      padding: 20px;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text-main);
+      background-color: #ffffff;
+    }
+
     .container {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
     }
-    h2 {
-      margin: 0;
-      font-size: 18px;
-      color: #111827;
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    label {
-      font-size: 12px;
-      font-weight: 500;
-      color: #6b7280;
-    }
-    input, textarea, select {
-      padding: 8px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    button {
-      padding: 8px 16px;
-      background-color: #10b981;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    button:hover {
-      background-color: #059669;
-    }
-    button:disabled {
-      background-color: #6ee7b7;
-      cursor: not-allowed;
-    }
+
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 4px;
     }
-    .logout-btn {
-      padding: 4px 8px;
-      background-color: transparent;
-      color: #6b7280;
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
       font-size: 12px;
-      font-weight: normal;
-      border: 1px solid #d1d5db;
+      font-weight: 500;
+      color: var(--text-muted);
     }
+
+    input, textarea, select {
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 14px;
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+
+    textarea {
+      resize: none;
+      min-height: 50px;
+      max-height: 150px;
+      overflow-y: hidden;
+      line-height: 1.5;
+    }
+
+    button {
+      padding: 11px 16px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    button:disabled {
+      background-color: var(--primary-disabled);
+      cursor: not-allowed;
+    }
+
+    .logout-btn {
+      padding: 6px 12px;
+      background-color: #ffffff;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      box-shadow: none;
+    }
+
     .logout-btn:hover {
       background-color: #f3f4f6;
       color: #374151;
     }
+
     .status {
       font-size: 12px;
-      margin-top: 4px;
+      font-weight: 500;
+      text-align: center;
+      margin-top: -4px;
     }
     .status.success { color: #059669; }
     .status.error { color: #dc2626; }
     
+    /* Auth Container သီးသန့် Redesign အပိုင်း */
     #authContainer {
       display: none;
-      text-align: center;
-      padding: 20px 10px;
-    }
-    #authContainer p {
-      margin-bottom: 15px;
-      font-size: 14px;
-      color: #4b5563;
-    }
-    #mainContainer.hidden {
-      display: none;
+      flex-direction: column;
+      gap: 16px;
+      padding: 8px 4px;
     }
 
-    #loginBtn {
-      margin: 10px 0px;
+    .auth-banner {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    /* Extension logo ပုံစံ visual အဝိုင်းလေး */
+    .auth-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px auto;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    
+    #authContainer p {
+      margin: 6px 0 0 0;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    #mainContainer.hidden, #authContainer.hidden {
+      display: none;
     }
   </style>
 </head>
@@ -99,37 +177,92 @@
       <h2>Quick Save Vocab</h2>
       <button id="logoutBtn" class="logout-btn">Logout</button>
     </div>
+    
     <div class="field">
       <label for="word">Word</label>
       <input type="text" id="word" placeholder="Word to save">
     </div>
+    
     <div class="field">
       <label for="definition">Definition (Optional)</label>
-      <textarea id="definition" rows="2" placeholder="Brief definition"></textarea>
+      <textarea id="definition" rows="1" placeholder="Brief definition..."></textarea>
     </div>
+    
     <div class="field">
       <label for="category">Category (Optional)</label>
       <select id="category">
         <option value="">Default (General)</option>
       </select>
     </div>
+    
     <button id="saveBtn">Save to VocabNote</button>
     <div id="status" class="status"></div>
   </div>
 
-  <div id="authContainer">
-    <h2>Please Log In</h2>
-    <p>You need to be logged into your VocabNote account to save words.</p>
-    <div class="field">
-      <label for="authEmail">Email</label>
-      <input type="email" id="authEmail" placeholder="you@example.com">
+  <div id="authContainer" class="container">
+    <div class="auth-banner">
+      <div class="auth-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-marked"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><polyline points="10 2 10 10 15 7 20 10 20 2"/></svg>
+      </div>
+      <h2>Welcome to VocabNote</h2>
+      <p>Please sign in to sync and save your new words instantly.</p>
     </div>
+    
+    <div class="field">
+      <label for="authEmail">Email Address</label>
+      <input type="email" id="authEmail" placeholder="name@example.com">
+    </div>
+    
     <div class="field">
       <label for="authPassword">Password</label>
-      <input type="password" id="authPassword" placeholder="Your password">
+      <input type="password" id="authPassword" placeholder="Enter your password">
     </div>
-    <button id="loginBtn">Sign In</button>
+    
+    <button id="loginBtn" style="margin-top: 4px;">Sign In</button>
     <div id="authStatus" class="status"></div>
+    <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 16px;">
+      No account yet? <a href="#" id="showSignup" style="color: var(--primary); font-weight: 500; text-decoration: none;">Create one</a>
+    </p>
+  </div>
+
+  <div id="signupContainer" class="container" style="display: none;">
+    <div class="auth-banner">
+       <div class="auth-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-marked"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><polyline points="10 2 10 10 15 7 20 10 20 2"/></svg>
+      </div>
+      <h2>Create Your Account</h2>
+      <p>Join VocabNote to start building your personal dictionary.</p>
+    </div>
+    
+    <div class="field">
+      <label for="signupName">Full Name</label>
+      <input type="text" id="signupName" placeholder="Enter your name">
+    </div>
+
+    <div class="field">
+      <label for="signupEmail">Email Address</label>
+      <input type="email" id="signupEmail" placeholder="name@example.com">
+    </div>
+    
+    <div class="field">
+      <label for="signupPassword">Password</label>
+      <input type="password" id="signupPassword" placeholder="Create a password">
+    </div>
+
+    <div class="field">
+      <label for="signupProficiency">English Proficiency</label>
+      <select id="signupProficiency">
+        <option value="Beginner">Beginner</option>
+        <option value="Intermediate">Intermediate</option>
+        <option value="Advanced">Advanced</option>
+      </select>
+    </div>
+    
+    <button id="signupBtn" style="margin-top: 4px;">Sign Up</button>
+    <div id="signupStatus" class="status"></div>
+    <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 16px;">
+      Already have an account? <a href="#" id="showLogin" style="color: var(--primary); font-weight: 500; text-decoration: none;">Sign In</a>
+    </p>
   </div>
 
   <script src="popup.js"></script>

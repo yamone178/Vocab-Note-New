@@ -1,26 +1,56 @@
 // Extension requests need HTTPS for SameSite=None cookies.
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://vocab-note.netlify.app/api';
 const EXTENSION_LOGIN_URL = `${API_BASE_URL}/auth/extension`;
+const EXTENSION_SIGNUP_URL = `${API_BASE_URL}/users`;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const mainContainer = document.getElementById('mainContainer');
   const authContainer = document.getElementById('authContainer');
+  const signupContainer = document.getElementById('signupContainer');
+  
+  // Auth view elements
   const loginBtn = document.getElementById('loginBtn');
   const authEmail = document.getElementById('authEmail');
   const authPassword = document.getElementById('authPassword');
   const authStatus = document.getElementById('authStatus');
+  const showSignup = document.getElementById('showSignup');
+  
+  // Signup view elements
+  const signupBtn = document.getElementById('signupBtn');
+  const signupName = document.getElementById('signupName');
+  const signupEmail = document.getElementById('signupEmail');
+  const signupPassword = document.getElementById('signupPassword');
+  const signupProficiency = document.getElementById('signupProficiency');
+  const signupStatus = document.getElementById('signupStatus');
+  const showLogin = document.getElementById('showLogin');
+
+  // Main view elements
   const wordInput = document.getElementById('word');
   const categorySelect = document.getElementById('category');
   const definitionText = document.getElementById('definition');
   const saveBtn = document.getElementById('saveBtn');
   const statusDiv = document.getElementById('status');
   const logoutBtn = document.getElementById('logoutBtn');
+  const definitionTextarea = document.getElementById('definition');
 
   let sourceUrl = '';
   let authToken = '';
 
+  if (definitionTextarea) {
+    definitionTextarea.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+      if (this.scrollHeight > 150) {
+        this.style.overflowY = 'auto';
+      } else {
+        this.style.overflowY = 'hidden';
+      }
+    });
+  }
+
   const showAuth = (message) => {
     mainContainer.style.display = 'none';
+    signupContainer.style.display = 'none';
     authContainer.style.display = 'block';
     if (message) {
       authStatus.textContent = message;
@@ -31,6 +61,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
+  const showSignupView = () => {
+    authContainer.style.display = 'none';
+    signupContainer.style.display = 'block';
+    signupStatus.textContent = '';
+    signupStatus.className = 'status';
+  };
+
+  const showLoginView = () => {
+    signupContainer.style.display = 'none';
+    authContainer.style.display = 'block';
+    authStatus.textContent = '';
+    authStatus.className = 'status';
+  };
+
+  showSignup.addEventListener('click', (e) => {
+    e.preventDefault();
+    showSignupView();
+  });
+
+  showLogin.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoginView();
+  });
+  
   const setAuthToken = (token) => {
     authToken = token || '';
     chrome.storage.local.set({ authToken: authToken || '' });
@@ -61,14 +115,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab) {
     sourceUrl = tab.url;
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: () => window.getSelection().toString().trim(),
-    }, (results) => {
-      if (results && results[0] && results[0].result) {
-        wordInput.value = results[0].result;
-      }
-    });
+    try {
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => window.getSelection().toString().trim(),
+      }, (results) => {
+        if (chrome.runtime.lastError) {
+          console.warn("Could not execute script, probably a protected page.");
+          return;
+        }
+        if (results && results[0] && results[0].result) {
+          wordInput.value = results[0].result;
+        }
+      });
+    } catch (e) {
+      console.warn("Error getting selection:", e);
+    }
   }
 
   const loadCategories = async () => {
@@ -102,6 +164,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       showAuth();
       return;
     }
+    mainContainer.style.display = 'flex';
+    authContainer.style.display = 'none';
+    signupContainer.style.display = 'none';
     loadCategories();
   });
 
@@ -151,6 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       setAuthToken(result.token);
       authContainer.style.display = 'none';
+      signupContainer.style.display = 'none';
       mainContainer.style.display = 'flex';
       authStatus.textContent = '';
       authStatus.className = 'status';
@@ -160,6 +226,49 @@ document.addEventListener('DOMContentLoaded', async () => {
       authStatus.textContent = 'Could not connect to the server.';
       authStatus.className = 'status error';
       loginBtn.disabled = false;
+    }
+  });
+  
+  signupBtn.addEventListener('click', async () => {
+    const name = signupName.value.trim();
+    const email = signupEmail.value.trim();
+    const password = signupPassword.value;
+    const proficiency = signupProficiency.value;
+
+    if (!name || !email || !password) {
+      signupStatus.textContent = 'All fields are required.';
+      signupStatus.className = 'status error';
+      return;
+    }
+    
+    signupBtn.disabled = true;
+    signupStatus.textContent = 'Creating account...';
+    signupStatus.className = 'status';
+
+    try {
+      const response = await fetch(EXTENSION_SIGNUP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, proficiency }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        signupStatus.textContent = errorData.message || 'Could not create account.';
+        signupStatus.className = 'status error';
+        signupBtn.disabled = false;
+        return;
+      }
+
+      // After successful signup, try to log in automatically
+      authEmail.value = email;
+      authPassword.value = password;
+      await loginBtn.click();
+
+    } catch (error) {
+      signupStatus.textContent = 'Could not connect to the server.';
+      signupStatus.className = 'status error';
+      signupBtn.disabled = false;
     }
   });
 
@@ -221,3 +330,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
+

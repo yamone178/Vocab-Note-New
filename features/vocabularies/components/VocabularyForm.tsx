@@ -63,10 +63,12 @@ const VocabularyForm = ({ onSubmit, initialValues, isPending, onXpEarned, isEdit
 
   const handleSubmit = async (values: VocabularySchema) => {
     await onSubmit(values);
-    if (submitButtonRef.current && onXpEarned) {
-      const rect = submitButtonRef.current.getBoundingClientRect();
-      onXpEarned(5, { top: rect.top, left: rect.left, width: rect.width, height: rect.height });
-    }
+    setTimeout(() => {
+      if (submitButtonRef.current && onXpEarned) {
+        const rect = submitButtonRef.current.getBoundingClientRect();
+        onXpEarned(5, { top: rect.top, left: rect.left, width: rect.width, height: rect.height });
+      }
+    }, 0);
   };
 
   const categoryIconMap = useMemo(
@@ -202,7 +204,7 @@ const VocabularyForm = ({ onSubmit, initialValues, isPending, onXpEarned, isEdit
                   <Textarea
                     placeholder="Provide a clear, concise definition…"
                     {...field}
-                    className="min-h-[100px] rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-emerald-500 placeholder:text-slate-400 resize-none"
+                    className="min-h-[150px] rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-emerald-500 placeholder:text-slate-400 resize-y p-4"
                   />
                 </FormControl>
                 <FormMessage />
